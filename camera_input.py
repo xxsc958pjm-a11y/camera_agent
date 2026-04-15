@@ -1,10 +1,20 @@
 import argparse
-
-import cv2
 import time
 from pathlib import Path
 
-DEFAULT_CAMERA_INDEX = 8
+import cv2
+
+from camera_source import (
+    DEFAULT_CAMERA_INDEX,
+    DEFAULT_FRAME_HEIGHT,
+    DEFAULT_FRAME_WIDTH,
+    get_camera_debug_info,
+    open_camera,
+    read_bgr_frame,
+)
+
+
+WINDOW_NAME = "Camera Input Preview"
 
 
 def parse_args():
@@ -15,47 +25,19 @@ def parse_args():
         default=DEFAULT_CAMERA_INDEX,
         help="Camera index to open. Default: 8",
     )
+    parser.add_argument(
+        "--width",
+        type=int,
+        default=DEFAULT_FRAME_WIDTH,
+        help="Camera width. Default: 640",
+    )
+    parser.add_argument(
+        "--height",
+        type=int,
+        default=DEFAULT_FRAME_HEIGHT,
+        help="Camera height. Default: 480",
+    )
     return parser.parse_args()
-
-
-def open_camera(camera_index, width=640, height=480):
-    cap = cv2.VideoCapture(camera_index, cv2.CAP_V4L2)
-
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"YUYV"))
-    cap.set(cv2.CAP_PROP_CONVERT_RGB, 0)
-
-    print(f"requested source = {camera_index}")
-    print(f"opened = {cap.isOpened()}")
-    print(f"actual width = {cap.get(cv2.CAP_PROP_FRAME_WIDTH)}")
-    print(f"actual height = {cap.get(cv2.CAP_PROP_FRAME_HEIGHT)}")
-    fourcc = int(cap.get(cv2.CAP_PROP_FOURCC))
-    print(f"actual fourcc = {''.join([chr((fourcc >> 8 * i) & 0xFF) for i in range(4)])}")
-    if not cap.isOpened():
-        raise RuntimeError(f"无法打开摄像头: {camera_index}")
-
-    ret, frame = cap.read()
-    print(f"ret = {ret}")
-    print(f"frame is None = {frame is None}")
-    if frame is not None:
-        frame = cv2.cvtColor(frame, cv2.COLOR_YUV2BGR_YUY2)
-        print(f"frame.shape = {frame.shape}")
-        print(f"frame.dtype = {frame.dtype}")
-        print(f"min/max/mean = {frame.min()} {frame.max()} {frame.mean()}")
-        cv2.imwrite("debug_frame.jpg", frame)
-
-    actual_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    actual_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    print(f"[INFO] Camera opened: source={camera_index}, size={actual_width}x{actual_height}")
-
-    return cap, ret, frame
-
-
-def prepare_display_frame(frame):
-    if frame is None:
-        return None
-    return frame
 
 
 def ensure_output_dir(output_dir="outputs/captured_frames"):
@@ -65,12 +47,12 @@ def ensure_output_dir(output_dir="outputs/captured_frames"):
 
 
 def draw_info(frame, frame_count, start_time):
-    h, w = frame.shape[:2]
+    height, width = frame.shape[:2]
     elapsed = time.time() - start_time
     fps = frame_count / elapsed if elapsed > 0 else 0.0
 
     info_lines = [
-        f"Resolution: {w}x{h}",
+        f"Resolution: {width}x{height}",
         f"Frame: {frame_count}",
         f"FPS: {fps:.2f}",
         "Press 's' to save frame",
@@ -106,50 +88,46 @@ def save_frame(frame, output_dir):
 def main():
     args = parse_args()
     output_dir = ensure_output_dir()
-    cap, first_ret, first_frame = open_camera(
-        camera_index=args.camera, width=640, height=480
+    cap = open_camera(
+        camera_index=args.camera,
+        width=args.width,
+        height=args.height,
     )
+    debug_info = get_camera_debug_info(cap, args.camera)
+
+    print(f"requested camera index = {debug_info['requested_camera_index']}")
+    print(f"cap.isOpened() = {debug_info['opened']}")
+    print(f"actual width = {debug_info['actual_width']}")
+    print(f"actual height = {debug_info['actual_height']}")
+    print(f"actual fourcc = {debug_info['actual_fourcc']}")
+
+    if not cap.isOpened():
+        raise RuntimeError(f"无法打开摄像头: {args.camera}")
 
     frame_count = 0
     start_time = time.time()
 
     try:
         while True:
-            if frame_count == 0:
-                ret, frame = first_ret, first_frame
-            else:
-                ret, frame = cap.read()
-                if ret and frame is not None:
-                    frame = cv2.cvtColor(frame, cv2.COLOR_YUV2BGR_YUY2)
+            ret, frame = read_bgr_frame(cap)
             if not ret or frame is None:
                 print("[ERROR] 读取摄像头帧失败")
                 break
 
             frame_count += 1
             if frame_count == 1:
-                cv2.imwrite("debug_frame.jpg", frame)
-                print("[INFO] Saved debug frame: debug_frame.jpg")
+                print(f"first frame shape = {frame.shape}")
 
-            raw_mean = frame.mean()
-            display_frame = prepare_display_frame(frame)
-            if display_frame is None:
-                print("[ERROR] 帧格式转换失败")
-                break
-            display_mean = display_frame.mean()
-            if frame_count == 1:
-                print(f"[DEBUG] raw frame mean: {raw_mean:.2f}")
-                print(f"[DEBUG] converted frame mean: {display_mean:.2f}")
-            display_frame = draw_info(display_frame, frame_count, start_time)
-
-            cv2.imshow("Camera Input Preview", display_frame)
+            display_frame = draw_info(frame.copy(), frame_count, start_time)
+            cv2.imshow(WINDOW_NAME, display_frame)
 
             key = cv2.waitKey(1) & 0xFF
-
             if key == ord("q"):
                 print("[INFO] Quit.")
                 break
-            elif key == ord("s"):
-                save_frame(display_frame, output_dir)
+            if key == ord("s"):
+                save_frame(frame, output_dir)
+
 
     finally:
         cap.release()
