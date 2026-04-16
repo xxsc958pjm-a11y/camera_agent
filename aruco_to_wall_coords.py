@@ -9,6 +9,53 @@ import numpy as np
 
 
 OUTPUT_DIR = Path("outputs/wall_coords")
+FIXED_WALL_WIDTH_MM = 1030.0
+FIXED_WALL_HEIGHT_MM = 1420.0
+DEFAULT_REFERENCE_MARKER_IDS = [37, 25, 12, 8]
+FIXED_REFERENCE_MARKER_WALL_CORNERS = {
+    37: np.array(
+        [
+            [0.0, 50.0],
+            [50.0, 50.0],
+            [50.0, 0.0],
+            [0.0, 0.0],
+        ],
+        dtype=np.float32,
+    ),
+    25: np.array(
+        [
+            [980.0, 50.0],
+            [1030.0, 50.0],
+            [1030.0, 0.0],
+            [980.0, 0.0],
+        ],
+        dtype=np.float32,
+    ),
+    12: np.array(
+        [
+            [0.0, 1420.0],
+            [50.0, 1420.0],
+            [50.0, 1370.0],
+            [0.0, 1370.0],
+        ],
+        dtype=np.float32,
+    ),
+    8: np.array(
+        [
+            [980.0, 1420.0],
+            [1030.0, 1420.0],
+            [1030.0, 1370.0],
+            [980.0, 1370.0],
+        ],
+        dtype=np.float32,
+    ),
+}
+FIXED_REFERENCE_MARKER_LAYOUTS = {
+    37: "left_bottom",
+    25: "right_bottom",
+    12: "left_top",
+    8: "right_top",
+}
 
 
 def parse_args():
@@ -32,12 +79,24 @@ def parse_args():
         help="Marker ID used as wall coordinate origin. Default: first detected marker",
     )
     parser.add_argument(
+        "--reference-marker-ids",
+        nargs="+",
+        type=int,
+        help=(
+            "Optional fixed reference marker IDs for whole-wall mapping. "
+            f"Current supported layout: {' '.join(str(marker_id) for marker_id in DEFAULT_REFERENCE_MARKER_IDS)}"
+        ),
+    )
+    parser.add_argument(
         "--origin",
-        choices=["top_left", "center"],
+        choices=["top_left", "center", "bottom_left"],
         default="top_left",
         help="Wall coordinate origin on the reference marker. Default: top_left",
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.reference_marker_ids and len(args.reference_marker_ids) < 2:
+        parser.error("--reference-marker-ids 至少需要 2 个 marker IDs。")
+    return args
 
 
 def ensure_output_dir(output_dir=OUTPUT_DIR):
@@ -80,13 +139,84 @@ def get_reference_marker(markers, origin_marker_id):
     raise RuntimeError(f"未找到 origin marker id: {origin_marker_id}")
 
 
+def normalize_reference_marker_ids(reference_marker_ids):
+    if not reference_marker_ids:
+        return None
+
+    normalized = []
+    seen = set()
+    for marker_id in reference_marker_ids:
+        marker_id = int(marker_id)
+        if marker_id in seen:
+            continue
+        seen.add(marker_id)
+        normalized.append(marker_id)
+
+    if len(normalized) < 2:
+        raise RuntimeError("固定参考模式至少需要 2 个 reference marker IDs")
+
+    unsupported_ids = [
+        marker_id
+        for marker_id in normalized
+        if marker_id not in FIXED_REFERENCE_MARKER_WALL_CORNERS
+    ]
+    if unsupported_ids:
+        raise RuntimeError(
+            "当前固定墙面参考几何只支持这些 reference marker IDs: "
+            f"{sorted(FIXED_REFERENCE_MARKER_WALL_CORNERS.keys())}，"
+            f"收到: {unsupported_ids}"
+        )
+
+    return normalized
+
+
+def normalize_point(point, context="point"):
+    if isinstance(point, dict):
+        x_value = point.get("x")
+        y_value = point.get("y")
+    elif isinstance(point, (tuple, list, np.ndarray)) and len(point) >= 2:
+        x_value, y_value = point[0], point[1]
+    else:
+        raise RuntimeError(f"{context} 坐标格式不支持: {point!r}")
+
+    if x_value is None or y_value is None:
+        raise RuntimeError(f"{context} 缺少 x/y 坐标: {point!r}")
+
+    return float(x_value), float(y_value)
+
+
+def get_reference_markers_by_ids(markers, reference_marker_ids, require_all=True):
+    markers_by_id = {marker.get("id"): marker for marker in markers}
+    found_markers = [
+        markers_by_id[marker_id]
+        for marker_id in reference_marker_ids
+        if marker_id in markers_by_id
+    ]
+    missing_ids = [
+        marker_id
+        for marker_id in reference_marker_ids
+        if marker_id not in markers_by_id
+    ]
+
+    if require_all and missing_ids:
+        raise RuntimeError(
+            "未找到全部 reference markers: "
+            f"required={reference_marker_ids}, missing={missing_ids}"
+        )
+
+    return found_markers, missing_ids
+
+
 def corners_to_array(marker):
     corners = marker.get("corners", [])
     if len(corners) != 4:
         raise RuntimeError(f"marker {marker.get('id')} 的 corners 数量不是 4")
 
     return np.array(
-        [[corner["x"], corner["y"]] for corner in corners],
+        [
+            list(normalize_point(corner, f"marker {marker.get('id')} corner"))
+            for corner in corners
+        ],
         dtype=np.float32,
     )
 
@@ -107,6 +237,18 @@ def build_reference_wall_points(marker_size_mm, origin_mode):
             dtype=np.float32,
         )
 
+    if origin_mode == "bottom_left":
+        return np.array(
+            [
+                [0.0, marker_size_mm],
+                [marker_size_mm, marker_size_mm],
+                [marker_size_mm, 0.0],
+                [0.0, 0.0],
+            ],
+            dtype=np.float32,
+        )
+
+    # top_left (default)
     return np.array(
         [
             [0.0, 0.0],
@@ -116,6 +258,13 @@ def build_reference_wall_points(marker_size_mm, origin_mode):
         ],
         dtype=np.float32,
     )
+
+
+def get_fixed_reference_wall_points(marker_id):
+    try:
+        return FIXED_REFERENCE_MARKER_WALL_CORNERS[int(marker_id)]
+    except KeyError as exc:
+        raise RuntimeError(f"不支持的固定 reference marker id: {marker_id}") from exc
 
 
 def compute_homography(reference_marker, marker_size_mm, origin_mode):
@@ -129,6 +278,24 @@ def compute_homography(reference_marker, marker_size_mm, origin_mode):
     return homography
 
 
+def compute_fixed_reference_homography(reference_markers, reference_marker_ids):
+    image_points = []
+    wall_points = []
+
+    for marker_id, marker in zip(reference_marker_ids, reference_markers):
+        image_points.extend(corners_to_array(marker).tolist())
+        wall_points.extend(get_fixed_reference_wall_points(marker_id).tolist())
+
+    image_points = np.array(image_points, dtype=np.float32)
+    wall_points = np.array(wall_points, dtype=np.float32)
+
+    homography, _ = cv2.findHomography(image_points, wall_points, method=0)
+    if homography is None:
+        raise RuntimeError("固定参考单应性矩阵计算失败")
+
+    return homography
+
+
 def transform_points(homography, points):
     point_array = np.array(points, dtype=np.float32).reshape(-1, 1, 2)
     transformed = cv2.perspectiveTransform(point_array, homography)
@@ -136,8 +303,14 @@ def transform_points(homography, points):
 
 
 def marker_points_to_wall(marker, homography):
-    image_corners = [(corner["x"], corner["y"]) for corner in marker["corners"]]
-    image_center = (marker["center"]["x"], marker["center"]["y"])
+    image_corners = [
+        normalize_point(corner, f"marker {marker.get('id')} corner")
+        for corner in marker["corners"]
+    ]
+    image_center = normalize_point(
+        marker["center"],
+        f"marker {marker.get('id')} center",
+    )
 
     transformed_corners = transform_points(homography, image_corners)
     transformed_center = transform_points(homography, [image_center])[0]
@@ -161,9 +334,64 @@ def marker_points_to_wall(marker, homography):
     }
 
 
-def build_wall_payload(detection_payload, marker_size_mm, reference_marker, origin_mode):
-    homography = compute_homography(reference_marker, marker_size_mm, origin_mode)
+def build_single_reference_metadata(reference_marker, marker_size_mm, origin_mode):
+    return {
+        "mode": "single_reference_marker",
+        "id": reference_marker["id"],
+        "marker_size_mm": marker_size_mm,
+        "origin_mode": origin_mode,
+    }
+
+
+def build_fixed_reference_metadata(reference_marker_ids, marker_size_mm):
+    reference_count = len(reference_marker_ids)
+    return {
+        "mode": f"fixed_{reference_count}_reference_markers",
+        "ids": list(reference_marker_ids),
+        "marker_size_mm": marker_size_mm,
+        "origin_mode": "bottom_left",
+        "wall_width_mm": FIXED_WALL_WIDTH_MM,
+        "wall_height_mm": FIXED_WALL_HEIGHT_MM,
+        "layouts": {
+            str(marker_id): FIXED_REFERENCE_MARKER_LAYOUTS[marker_id]
+            for marker_id in reference_marker_ids
+        },
+    }
+
+
+def build_wall_payload(
+    detection_payload,
+    marker_size_mm,
+    reference_marker=None,
+    origin_mode="top_left",
+    reference_marker_ids=None,
+):
     markers = detection_payload["markers"]
+
+    normalized_reference_ids = normalize_reference_marker_ids(reference_marker_ids)
+    if normalized_reference_ids is not None:
+        reference_markers, _ = get_reference_markers_by_ids(
+            markers,
+            normalized_reference_ids,
+            require_all=True,
+        )
+        homography = compute_fixed_reference_homography(
+            reference_markers,
+            normalized_reference_ids,
+        )
+        reference_metadata = build_fixed_reference_metadata(
+            normalized_reference_ids,
+            marker_size_mm,
+        )
+        y_axis = "up"
+    else:
+        homography = compute_homography(reference_marker, marker_size_mm, origin_mode)
+        reference_metadata = build_single_reference_metadata(
+            reference_marker,
+            marker_size_mm,
+            origin_mode,
+        )
+        y_axis = "up" if origin_mode == "bottom_left" else "down"
 
     transformed_markers = [
         marker_points_to_wall(marker, homography) for marker in markers
@@ -174,16 +402,14 @@ def build_wall_payload(detection_payload, marker_size_mm, reference_marker, orig
         "source_detection": detection_payload.get("source"),
         "dictionary": detection_payload.get("dictionary"),
         "image_size": detection_payload.get("image_size"),
-        "reference_marker": {
-            "id": reference_marker["id"],
-            "marker_size_mm": marker_size_mm,
-            "origin_mode": origin_mode,
-        },
+        "reference_marker": reference_metadata,
         "coordinate_system": {
             "unit": "mm",
             "x_axis": "right",
-            "y_axis": "down",
+            "y_axis": y_axis,
             "plane": "wall_plane_marker_local",
+            "wall_width_mm": FIXED_WALL_WIDTH_MM,
+            "wall_height_mm": FIXED_WALL_HEIGHT_MM,
         },
         "marker_count": len(transformed_markers),
         "markers": transformed_markers,
@@ -191,27 +417,48 @@ def build_wall_payload(detection_payload, marker_size_mm, reference_marker, orig
 
 
 def convert_detection_to_wall_payload(
-    detection_payload, marker_size_mm, origin_marker_id=None, origin_mode="top_left"
+    detection_payload,
+    marker_size_mm,
+    origin_marker_id=None,
+    origin_mode="top_left",
+    reference_marker_ids=None,
 ):
-    reference_marker = get_reference_marker(
-        detection_payload["markers"], origin_marker_id
-    )
+    normalized_reference_ids = normalize_reference_marker_ids(reference_marker_ids)
+    reference_marker = None
+    if normalized_reference_ids is None:
+        reference_marker = get_reference_marker(
+            detection_payload["markers"], origin_marker_id
+        )
     return build_wall_payload(
         detection_payload=detection_payload,
         marker_size_mm=marker_size_mm,
         reference_marker=reference_marker,
         origin_mode=origin_mode,
+        reference_marker_ids=normalized_reference_ids,
     )
 
 
 def print_wall_results(payload):
     reference = payload["reference_marker"]
-    print(
-        "[INFO] 已生成墙面坐标: "
-        f"reference_marker_id={reference['id']}, "
-        f"marker_size_mm={reference['marker_size_mm']}, "
-        f"origin={reference['origin_mode']}"
-    )
+    if "ids" in reference:
+        layout_summary = "+".join(
+            f"{marker_id}:{reference['layouts'][str(marker_id)]}"
+            for marker_id in reference["ids"]
+        )
+        print(
+            "[INFO] 已生成墙面坐标: "
+            f"reference_marker_ids={reference['ids']}, "
+            f"marker_size_mm={reference['marker_size_mm']}, "
+            f"origin={reference['origin_mode']}, "
+            f"layout={layout_summary}"
+        )
+    else:
+        print(
+            "[INFO] 已生成墙面坐标: "
+            f"reference_marker_id={reference['id']}, "
+            f"marker_size_mm={reference['marker_size_mm']}, "
+            f"origin={reference['origin_mode']}"
+        )
 
     for marker in payload["markers"]:
         center = marker["wall_mm"]["center"]
@@ -247,6 +494,48 @@ def save_wall_json_with_prefix(payload, prefix, output_dir):
     return output_path
 
 
+def compute_marker_wall_coords(
+    marker_list,
+    reference_marker=None,
+    marker_size_mm=None,
+    origin_mode="top_left",
+    reference_marker_ids=None,
+):
+    """
+    Compute wall coordinates for a list of markers given a reference marker.
+
+    This function is designed for real-time use in the camera pipeline.
+
+    Args:
+        marker_list: List of marker dicts with 'id', 'corners', 'center'
+        reference_marker: Reference marker dict (typically used for single-marker homography)
+        marker_size_mm: Physical marker size in millimeters
+        origin_mode: Origin mode ('top_left', 'center', or 'bottom_left')
+        reference_marker_ids: Optional fixed reference marker IDs for dual-reference mapping
+
+    Returns:
+        List of marker dicts with 'id' and 'wall_mm' containing transformed coordinates
+    """
+    normalized_reference_ids = normalize_reference_marker_ids(reference_marker_ids)
+    if normalized_reference_ids is not None:
+        reference_markers, _ = get_reference_markers_by_ids(
+            marker_list,
+            normalized_reference_ids,
+            require_all=True,
+        )
+        homography = compute_fixed_reference_homography(
+            reference_markers,
+            normalized_reference_ids,
+        )
+    else:
+        homography = compute_homography(reference_marker, marker_size_mm, origin_mode)
+
+    transformed_markers = [
+        marker_points_to_wall(marker, homography) for marker in marker_list
+    ]
+    return transformed_markers
+
+
 def main():
     args = parse_args()
 
@@ -260,6 +549,7 @@ def main():
             marker_size_mm=args.marker_size_mm,
             origin_marker_id=args.origin_marker_id,
             origin_mode=args.origin,
+            reference_marker_ids=args.reference_marker_ids,
         )
 
         print_wall_results(wall_payload)

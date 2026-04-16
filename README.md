@@ -31,6 +31,9 @@
 - [`wall_coords_viewer.py`](/Users/ruirenmei/camera_agent/wall_coords_viewer.py)
   将墙面坐标或目标点 JSON 渲染成 2D 平面预览。
 
+- [`wall_map_renderer.py`](/Users/ruirenmei/camera_agent/wall_map_renderer.py)
+  实时墙面二维坐标渲染模块，支持双视图显示（相机+墙面图）。
+
 - [`projection_targets.py`](/Users/ruirenmei/camera_agent/projection_targets.py)
   将墙面坐标整理为激光投影友好的目标点列表。
 
@@ -162,6 +165,60 @@ python3 ild_loader.py --no-window
 - 保存摘要 JSON
 - 保存预览图
 
+## 5.3 墙面坐标系定义（当前推荐方案）
+
+当前整面墙坐标映射推荐使用 **4 个固定参考 Marker**：
+
+- 左下固定参考 marker：`37`
+- 右下固定参考 marker：`25`
+- 左上固定参考 marker：`12`
+- 右上固定参考 marker：`8`
+
+**墙面尺寸（固定）：**
+- 宽度：`1030 mm`
+- 高度：`1420 mm`
+
+**坐标系定义（固定）：**
+- 原点 `(0, 0)` = 墙左下角
+- X 轴正方向 = 向右（`right`）
+- Y 轴正方向 = 向上（`up`）
+- 单位 = 毫米（`mm`）
+
+**Marker 边长（固定）：**
+- `marker_size_mm = 50`
+
+**固定参考 marker 几何定义：**
+
+- Marker `37` 固定在墙左下角，对应墙面四角：
+  - `top_left = (0, 50)`
+  - `top_right = (50, 50)`
+  - `bottom_right = (50, 0)`
+  - `bottom_left = (0, 0)`
+
+- Marker `25` 固定在墙右下角，对应墙面四角：
+  - `top_left = (980, 50)`
+  - `top_right = (1030, 50)`
+  - `bottom_right = (1030, 0)`
+  - `bottom_left = (980, 0)`
+
+- Marker `12` 固定在墙左上角，对应墙面四角：
+  - `top_left = (0, 1420)`
+  - `top_right = (50, 1420)`
+  - `bottom_right = (50, 1370)`
+  - `bottom_left = (0, 1370)`
+
+- Marker `8` 固定在墙右上角，对应墙面四角：
+  - `top_left = (980, 1420)`
+  - `top_right = (1030, 1420)`
+  - `bottom_right = (1030, 1370)`
+  - `bottom_left = (980, 1370)`
+
+当前推荐的整面墙映射流程是：
+- 用 marker `37 / 25 / 12 / 8` 的 16 个角点一起求 `image -> wall` 平面映射
+- 再把其他 marker 的 `center / corners` 投影到墙面坐标
+
+旧的单参考和双参考模式仍然保留，用于兼容旧命令；但当前推荐实验方案已经切换为 `37 + 25 + 12 + 8` 四参考。
+
 ## 6. 相机 / Aruco 闭环
 
 这是当前最重要的一条图像链路。
@@ -204,7 +261,7 @@ python3 aruco_detect.py \
   用作墙面坐标原点的标签 ID。
 
 - `--origin`
-  原点放在参考标签的 `top_left` 或 `center`，默认 `top_left`。
+  原点放在参考标签的 `top_left`、`center` 或 `bottom_left`，默认 `top_left`。当选择 `bottom_left` 时，Y 轴方向为向上。
 
 运行结果：
 
@@ -215,14 +272,26 @@ python3 aruco_detect.py \
 
 ### 6.2 单独把检测结果转成墙面坐标
 
+当前推荐使用四参考 marker：
+
 ```bash
 python3 aruco_to_wall_coords.py \
   --input outputs/aruco_detect/your_detection.json \
   --marker-size-mm 50 \
-  --origin-marker-id 23
+  --reference-marker-ids 37 25 12 8
 ```
 
-如果想让原点放在参考标签中心：
+说明：
+
+- 当使用 `--reference-marker-ids 37 25 12 8` 时，会启用当前固定墙面几何：
+  - `37 = left_bottom`
+  - `25 = right_bottom`
+  - `12 = left_top`
+  - `8 = right_top`
+  - 原点固定为墙左下角
+  - `y` 固定向上
+
+- 旧的单参考模式仍然兼容，例如：
 
 ```bash
 python3 aruco_to_wall_coords.py \
@@ -232,7 +301,65 @@ python3 aruco_to_wall_coords.py \
   --origin center
 ```
 
-### 6.3 可视化墙面坐标
+### 6.3 实时墙面二维坐标定位显示（双视图）
+
+这是一个**新功能**，可视时在摄像头实时运行时显示墙面坐标图。
+
+运行带 `--show-wall-map` 参数的 `camera_pipeline.py`：
+
+```bash
+python3 camera_pipeline.py \
+  --camera 8 \
+  --dict DICT_4X4_50 \
+  --width 1280 \
+  --height 720 \
+  --marker-size-mm 50 \
+  --reference-marker-ids 37 25 12 8 \
+  --target-type centers \
+  --show-wall-map
+```
+
+功能说明：
+
+- 窗口分为左右两部分：
+  - **左侧**：实时摄像头画面，显示检测到的 marker 边框和 ID
+  - **右侧**：墙面二维坐标图（标准平面图，不是透视图），显示：
+    - 墙面矩形边界（1030 x 1420 mm）
+    - 坐标轴和原点标记（Y 轴向上）
+    - Marker 37（左下）、25（右下）、12（左上）、8（右上）的位置（绿色方块）
+    - 其他 marker 的中心位置（蓝-橙色方块）
+    - 每个 marker 的 ID 标签
+
+- 实时打印：
+  - 只有当 4 个固定参考 marker（`37`, `25`, `12`, `8`）都稳定可见时，才会建立整面墙 wall mapping
+  - 只有当 4 个参考都稳定后，其他 marker（非 `37`, `25`, `12`, `8`）在墙面坐标系中**首次稳定出现**或**位置发生明显变化**时，才会在 terminal 中打印其 wall center 坐标
+  - 例如：`[INFO] marker 35 -> wall_center_mm = (428.6, 312.4)`
+
+- 如果参考不完整：
+  - 右侧墙面图会显示 `Waiting for reference markers (37, 25, 12, 8)...`
+  - 或显示 `Reference markers incomplete`
+  - 不会继续输出看似可靠的整面墙 wall coords
+
+- 操作与标准相同：
+  - 按 `s` 导出当前完整结果（检测 JSON、墙面坐标 JSON、投影目标点、以及可选的执行队列）
+  - 按 `q` 退出
+
+**完整示例（带导出执行队列）：**
+
+```bash
+python3 camera_pipeline.py \
+  --camera 8 \
+  --dict DICT_4X4_50 \
+  --width 1280 \
+  --height 720 \
+  --marker-size-mm 50 \
+  --reference-marker-ids 37 25 12 8 \
+  --target-type centers \
+  --show-wall-map \
+  --export-execution-queue
+```
+
+### 6.4 可视化墙面坐标
 
 ```bash
 python3 wall_coords_viewer.py --input outputs/wall_coords/your_wall_coords.json
@@ -243,7 +370,7 @@ python3 wall_coords_viewer.py --input outputs/wall_coords/your_wall_coords.json
 - 按 `s` 保存预览图
 - 按 `q` 退出
 
-### 6.4 从墙面坐标生成投影目标点
+### 6.5 从墙面坐标生成投影目标点
 
 默认导出中心点：
 
@@ -269,7 +396,7 @@ python3 projection_targets.py \
   --marker-ids 23 42
 ```
 
-### 6.5 模拟投影目标点
+### 6.6 模拟投影目标点
 
 ```bash
 python3 projection_simulator.py \
@@ -286,7 +413,7 @@ python3 projection_simulator.py \
 - `--show-labels`
   显示每个 target 的完整标签。
 
-### 6.6 把目标点转换成执行队列
+### 6.7 把目标点转换成执行队列
 
 ```bash
 python3 projection_executor_stub.py \
@@ -305,7 +432,7 @@ python3 projection_executor_stub.py \
   --laser-power 0.7
 ```
 
-### 6.7 播放执行队列
+### 6.8 播放执行队列
 
 快速 dry run：
 
@@ -331,7 +458,7 @@ python3 projection_executor_player.py \
   --input outputs/projection_executor/your_execution_queue.json
 ```
 
-### 6.8 相机 / Aruco 一条命令跑完整闭环
+### 6.9 相机 / Aruco 一条命令跑完整闭环
 
 图片模式：
 
@@ -359,11 +486,66 @@ python3 camera_pipeline.py \
 
 - `camera_pipeline.py` 在实时摄像头模式下，需要在窗口中按 `s` 才会导出当前结果。
 - 按下 `s` 后会导出当前帧对应的 `aruco_detect`、`wall_coords`、`projection_targets`，如果启用了 `--export-execution-queue`，还会继续导出 `execution_queue`。
-- `--origin-marker-id` 只用于定义 wall coordinate origin，不会限制保留哪些 marker。
+- 当前推荐使用 `--reference-marker-ids 37 25 12 8` 建立整面墙映射。
+- `--origin-marker-id` 只用于旧单参考兼容模式，不会限制保留哪些 marker。
 - 如果没有显式传 `--target-marker-ids`，则会保留所有通过检测与稳定判定的 marker。
-- 更换 `--origin-marker-id` 只会改变坐标系原点，不会改变 marker 集合。
+- 使用固定参考模式时，墙面坐标原点固定为墙左下角；更换 `--origin-marker-id` 不会影响该模式。
 
 当前 Linux + RealSense 环境推荐命令：
+
+基础命令（仅导出结果）：
+
+```bash
+python camera_pipeline.py \
+  --camera 8 \
+  --dict DICT_4X4_50 \
+  --width 1280 \
+  --height 720 \
+  --marker-size-mm 50 \
+  --reference-marker-ids 37 25 12 8 \
+  --target-type centers
+```
+
+推荐命令（启用实时墙面双视图显示）：
+
+```bash
+python camera_pipeline.py \
+  --camera 8 \
+  --dict DICT_4X4_50 \
+  --width 1280 \
+  --height 720 \
+  --marker-size-mm 50 \
+  --reference-marker-ids 37 25 12 8 \
+  --target-type centers \
+  --show-wall-map \
+  --export-execution-queue
+```
+
+完整示例（带所有选项）：
+
+```bash
+python camera_pipeline.py \
+  --camera 8 \
+  --dict DICT_4X4_50 \
+  --width 1280 \
+  --height 720 \
+  --marker-size-mm 50 \
+  --reference-marker-ids 37 25 12 8 \
+  --target-type centers \
+  --show-wall-map \
+  --export-execution-queue \
+  --dwell-ms 800 \
+  --travel-ms 200 \
+  --settle-ms 100 \
+  --repeat 2 \
+  --laser-power 0.7
+```
+
+当左上角出现多个稳定 ID 时，按 `s` 保存当前完整结果，按 `q` 退出。
+
+（以下是旧单参考 `--origin` 选项的兼容示例）
+
+使用 `top_left` 原点模式的传统命令：
 
 ```bash
 python camera_pipeline.py \
@@ -377,8 +559,6 @@ python camera_pipeline.py \
   --target-type centers \
   --export-execution-queue
 ```
-
-当左上角出现多个稳定 ID 时，按 `s` 保存当前完整结果，按 `q` 退出。
 
 执行队列时间参数也可以在这里直接设置：
 
@@ -493,7 +673,7 @@ python3 laser_pipeline.py --no-window --play --dry-run --max-steps 20
 python3 camera_pipeline.py \
   --image path/to/your/test.jpg \
   --marker-size-mm 50 \
-  --origin-marker-id 23 \
+  --reference-marker-ids 37 25 12 8 \
   --target-type all \
   --export-execution-queue
 ```

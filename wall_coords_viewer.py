@@ -2,6 +2,7 @@ import argparse
 import json
 import sys
 import time
+import traceback
 from pathlib import Path
 
 import cv2
@@ -13,6 +14,10 @@ WINDOW_NAME = "Wall Coordinates Viewer"
 CANVAS_WIDTH = 1200
 CANVAS_HEIGHT = 900
 MARGIN = 80
+DEBUG_WALL_PREFIX = "[DEBUG_WALL]"
+_debug_wall_point_types_seen = set()
+_debug_wall_geometry_logs = 0
+_debug_wall_exception_logs = 0
 
 
 def parse_args():
@@ -53,6 +58,132 @@ def load_wall_json(input_path):
     return payload
 
 
+def debug_wall_log(message):
+    print(f"{DEBUG_WALL_PREFIX} {message}")
+
+
+def debug_wall_repr(value, limit=240):
+    text = repr(value)
+    if len(text) > limit:
+        return f"{text[:limit]}..."
+    return text
+
+
+def debug_wall_log_new_point_type(point, context):
+    point_type = type(point)
+    if point_type in _debug_wall_point_types_seen:
+        return
+
+    _debug_wall_point_types_seen.add(point_type)
+    debug_wall_log(
+        f"viewer {context} point type={point_type} value={debug_wall_repr(point)}"
+    )
+
+
+def debug_wall_log_geometry(marker_id, wall_data):
+    global _debug_wall_geometry_logs
+
+    if _debug_wall_geometry_logs >= 5:
+        return
+
+    if isinstance(wall_data, dict):
+        center = wall_data.get("center")
+        corners = wall_data.get("corners")
+        corner0 = corners[0] if isinstance(corners, (list, tuple)) and corners else None
+        debug_wall_log(
+            "viewer geometry "
+            f"marker={marker_id} "
+            f"wall_type={type(wall_data)} "
+            f"center_type={type(center)} "
+            f"corners_type={type(corners)} "
+            f"corner0_type={type(corner0)}"
+        )
+    else:
+        debug_wall_log(
+            "viewer geometry "
+            f"marker={marker_id} "
+            f"wall_type={type(wall_data)} "
+            f"value={debug_wall_repr(wall_data)}"
+        )
+
+    _debug_wall_geometry_logs += 1
+
+
+def debug_wall_log_exception(stage, object_name, obj):
+    global _debug_wall_exception_logs
+
+    if _debug_wall_exception_logs >= 3:
+        return
+
+    debug_wall_log(f"viewer exception stage={stage}")
+    debug_wall_log(f"viewer exception object={object_name}")
+    debug_wall_log(f"viewer exception object type={type(obj)}")
+    debug_wall_log(f"viewer exception object repr={debug_wall_repr(obj, limit=400)}")
+    traceback_tail = traceback.format_exc().splitlines()[-6:]
+    for line in traceback_tail:
+        debug_wall_log(f"viewer traceback {line}")
+
+    _debug_wall_exception_logs += 1
+
+
+def normalize_point(point, context="point"):
+    debug_wall_log_new_point_type(point, context)
+
+    if isinstance(point, dict):
+        x_value = point.get("x")
+        y_value = point.get("y")
+    elif isinstance(point, (tuple, list, np.ndarray)) and len(point) >= 2:
+        x_value, y_value = point[0], point[1]
+    else:
+        raise RuntimeError(f"{context} 坐标格式不支持: {point!r}")
+
+    if x_value is None or y_value is None:
+        raise RuntimeError(f"{context} 缺少 x/y 坐标: {point!r}")
+
+    return float(x_value), float(y_value)
+
+
+def normalize_wall_geometry(wall_data, marker_id=None):
+    context_prefix = f"marker {marker_id}" if marker_id is not None else "marker"
+    debug_wall_log_geometry(marker_id, wall_data)
+
+    if isinstance(wall_data, dict):
+        raw_corners = wall_data.get("corners", [])
+        raw_center = wall_data.get("center")
+
+        if raw_corners or raw_center is not None:
+            corners = [
+                normalize_point(point, f"{context_prefix} corner")
+                for point in raw_corners
+            ]
+            center = (
+                normalize_point(raw_center, f"{context_prefix} center")
+                if raw_center is not None
+                else None
+            )
+        else:
+            center = normalize_point(wall_data, f"{context_prefix} wall_mm")
+            corners = []
+    else:
+        center = normalize_point(wall_data, f"{context_prefix} wall_mm")
+        corners = []
+
+    if center is None and corners:
+        center_array = np.array(corners, dtype=np.float32)
+        center = tuple(center_array.mean(axis=0).tolist())
+
+    if center is None:
+        raise RuntimeError(f"{context_prefix} 缺少可用的 wall 坐标")
+
+    if not corners:
+        corners = [center, center, center, center]
+
+    return {
+        "corners": corners,
+        "center": center,
+    }
+
+
 def extract_marker_like_data(payload):
     if "markers" in payload:
         return payload["markers"], "markers"
@@ -60,18 +191,13 @@ def extract_marker_like_data(payload):
     if "targets" in payload:
         markers = []
         for index, target in enumerate(payload["targets"]):
-            point = target["wall_mm"]
+            point = normalize_point(target["wall_mm"], f"target {index} wall_mm")
             markers.append(
                 {
                     "id": target.get("label", index),
                     "wall_mm": {
-                        "corners": [
-                            {"x": point["x"], "y": point["y"]},
-                            {"x": point["x"], "y": point["y"]},
-                            {"x": point["x"], "y": point["y"]},
-                            {"x": point["x"], "y": point["y"]},
-                        ],
-                        "center": {"x": point["x"], "y": point["y"]},
+                        "corners": [point, point, point, point],
+                        "center": point,
                     },
                 }
             )
@@ -83,11 +209,9 @@ def extract_marker_like_data(payload):
 def collect_wall_points(markers):
     points = []
     for marker in markers:
-        wall = marker.get("wall_mm", {})
-        points.extend((corner["x"], corner["y"]) for corner in wall.get("corners", []))
-        center = wall.get("center")
-        if center is not None:
-            points.append((center["x"], center["y"]))
+        wall = normalize_wall_geometry(marker.get("wall_mm", {}), marker.get("id"))
+        points.extend(wall["corners"])
+        points.append(wall["center"])
     return points
 
 
@@ -184,10 +308,13 @@ def draw_header(canvas, payload):
     reference = payload.get("reference_marker", {})
     item_count = payload.get("marker_count", payload.get("target_count"))
     source = payload.get("source_detection", payload.get("source_wall_coords"))
+    reference_id = reference.get("id")
+    if reference_id is None and reference.get("ids"):
+        reference_id = ",".join(str(marker_id) for marker_id in reference["ids"])
     lines = [
         "Wall Coordinate Preview",
         f"Source: {source}",
-        f"Reference ID: {reference.get('id')}, size: {reference.get('marker_size_mm')} mm",
+        f"Reference ID: {reference_id}, size: {reference.get('marker_size_mm')} mm",
         f"Origin: {reference.get('origin_mode')}, items: {item_count}",
     ]
 
@@ -208,9 +335,9 @@ def draw_header(canvas, payload):
 
 def draw_markers(canvas, markers, bounds, transform):
     for marker in markers:
-        wall = marker["wall_mm"]
-        corners = [(point["x"], point["y"]) for point in wall["corners"]]
-        center = (wall["center"]["x"], wall["center"]["y"])
+        wall = normalize_wall_geometry(marker["wall_mm"], marker.get("id"))
+        corners = wall["corners"]
+        center = wall["center"]
 
         polygon = np.array(
             [wall_to_canvas(point, bounds, transform) for point in corners],
@@ -248,16 +375,39 @@ def draw_markers(canvas, markers, bounds, transform):
 
 
 def render_wall_preview(payload):
-    markers, _ = extract_marker_like_data(payload)
-    points = collect_wall_points(markers)
-    bounds = compute_bounds(points)
-    transform = build_transform(bounds)
+    current_object_name = "payload"
+    current_object = payload
+    current_stage = "extract_marker_like_data"
 
-    canvas = create_canvas()
-    draw_header(canvas, payload)
-    draw_axes(canvas, bounds, transform)
-    draw_markers(canvas, markers, bounds, transform)
-    return canvas
+    try:
+        markers, _ = extract_marker_like_data(payload)
+        current_object_name = "markers"
+        current_object = markers
+
+        current_stage = "collect_wall_points"
+        points = collect_wall_points(markers)
+        current_object_name = "points"
+        current_object = points
+
+        current_stage = "compute_bounds"
+        bounds = compute_bounds(points)
+        current_object_name = "bounds"
+        current_object = bounds
+
+        current_stage = "build_transform"
+        transform = build_transform(bounds)
+        current_object_name = "transform"
+        current_object = transform
+
+        current_stage = "draw_preview"
+        canvas = create_canvas()
+        draw_header(canvas, payload)
+        draw_axes(canvas, bounds, transform)
+        draw_markers(canvas, markers, bounds, transform)
+        return canvas
+    except Exception:
+        debug_wall_log_exception(current_stage, current_object_name, current_object)
+        raise
 
 
 def build_output_path(input_path, output_dir):

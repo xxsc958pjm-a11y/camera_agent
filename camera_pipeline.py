@@ -1,6 +1,7 @@
 import argparse
 import sys
 import time
+import traceback
 from pathlib import Path
 
 import cv2
@@ -24,8 +25,12 @@ from aruco_detect import (
 )
 from aruco_runtime import StableMarkerTracker
 from aruco_to_wall_coords import (
+    DEFAULT_REFERENCE_MARKER_IDS,
+    FIXED_WALL_HEIGHT_MM,
+    FIXED_WALL_WIDTH_MM,
     OUTPUT_DIR as WALL_OUTPUT_DIR,
     convert_detection_to_wall_payload,
+    compute_marker_wall_coords,
     print_wall_results,
     save_wall_json_with_prefix,
 )
@@ -49,6 +54,14 @@ from projection_targets import (
     print_projection_targets,
     save_projection_json_with_prefix,
 )
+from wall_map_renderer import WallMapRenderer
+
+
+DEBUG_WALL_PREFIX = "[DEBUG_WALL]"
+DEBUG_WALL_INPUT_LOG_LIMIT = 3
+DEBUG_WALL_EXCEPTION_LOG_LIMIT = 3
+_debug_wall_input_logs = 0
+_debug_wall_exception_logs = 0
 
 
 def parse_args():
@@ -94,8 +107,17 @@ def parse_args():
         help="Marker ID used as wall origin. Default: first detected stable marker",
     )
     parser.add_argument(
+        "--reference-marker-ids",
+        nargs="+",
+        type=int,
+        help=(
+            "Optional fixed reference markers for whole-wall mapping. "
+            f"Recommended: {' '.join(str(marker_id) for marker_id in DEFAULT_REFERENCE_MARKER_IDS)}"
+        ),
+    )
+    parser.add_argument(
         "--origin",
-        choices=["top_left", "center"],
+        choices=["top_left", "center", "bottom_left"],
         default="top_left",
         help="Wall coordinate origin on the reference marker. Default: top_left",
     )
@@ -132,6 +154,11 @@ def parse_args():
         "--export-execution-queue",
         action="store_true",
         help="Also export a projection execution queue JSON",
+    )
+    parser.add_argument(
+        "--show-wall-map",
+        action="store_true",
+        help="Show real-time wall map visualization in dual-view mode (camera left, wall map right)",
     )
     parser.add_argument(
         "--dwell-ms",
@@ -180,12 +207,166 @@ def parse_args():
     args = parser.parse_args()
     if args.image is not None and "--camera" in sys.argv:
         parser.error("--image 和 --camera 不能同时使用。")
+    if args.reference_marker_ids and len(args.reference_marker_ids) < 2:
+        parser.error("--reference-marker-ids 至少需要 2 个 marker IDs。")
     return args
 
 
 def ensure_output_dir(output_dir):
     output_dir.mkdir(parents=True, exist_ok=True)
     return output_dir
+
+
+def debug_wall_repr(value, limit=240):
+    text = repr(value)
+    if len(text) > limit:
+        return f"{text[:limit]}..."
+    return text
+
+
+def debug_wall_log(message):
+    print(f"{DEBUG_WALL_PREFIX} {message}")
+
+
+def extract_xy(point):
+    if point is None:
+        return None
+    if isinstance(point, dict):
+        x_value = point.get("x")
+        y_value = point.get("y")
+    elif isinstance(point, (tuple, list)) and len(point) >= 2:
+        x_value, y_value = point[0], point[1]
+    else:
+        return None
+
+    if x_value is None or y_value is None:
+        return None
+
+    return float(x_value), float(y_value)
+
+
+def log_wall_map_input(reference_info, stable_results, wall_markers):
+    global _debug_wall_input_logs
+
+    if _debug_wall_input_logs >= DEBUG_WALL_INPUT_LOG_LIMIT:
+        return
+
+    stable_ids = [result.get("id") for result in stable_results]
+    debug_wall_log(
+        "camera_pipeline input "
+        f"ref={reference_info} "
+        f"stable_ids={stable_ids} "
+        f"markers_type={type(wall_markers)} "
+        f"marker_count={len(wall_markers)}"
+    )
+
+    for marker in list(wall_markers)[:2]:
+        marker_id = marker.get("id")
+        wall_mm = marker.get("wall_mm")
+        center = wall_mm.get("center") if isinstance(wall_mm, dict) else wall_mm
+        corners = wall_mm.get("corners") if isinstance(wall_mm, dict) else None
+
+        debug_wall_log(
+            f"marker {marker_id} wall_mm type={type(wall_mm)} "
+            f"value={debug_wall_repr(wall_mm)}"
+        )
+        debug_wall_log(
+            f"marker {marker_id} center type={type(center)} "
+            f"value={debug_wall_repr(center)}"
+        )
+
+        if isinstance(corners, (list, tuple)) and corners:
+            debug_wall_log(
+                f"marker {marker_id} corners type={type(corners)} len={len(corners)}"
+            )
+            debug_wall_log(
+                f"marker {marker_id} corner0 type={type(corners[0])} "
+                f"value={debug_wall_repr(corners[0])}"
+            )
+        else:
+            debug_wall_log(
+                f"marker {marker_id} corners type={type(corners)} "
+                f"value={debug_wall_repr(corners)}"
+            )
+
+    _debug_wall_input_logs += 1
+
+
+def log_wall_map_exception(stage, object_name, obj):
+    global _debug_wall_exception_logs
+
+    if _debug_wall_exception_logs >= DEBUG_WALL_EXCEPTION_LOG_LIMIT:
+        return
+
+    debug_wall_log(f"exception stage={stage}")
+    debug_wall_log(f"exception object={object_name}")
+    debug_wall_log(f"exception object type={type(obj)}")
+    debug_wall_log(f"exception object repr={debug_wall_repr(obj, limit=400)}")
+    traceback_tail = traceback.format_exc().splitlines()[-6:]
+    for line in traceback_tail:
+        debug_wall_log(f"traceback {line}")
+
+    _debug_wall_exception_logs += 1
+
+
+def get_stable_reference_markers(results, reference_marker_ids):
+    markers_by_id = {result.get("id"): result for result in results}
+    found_markers = [
+        markers_by_id[marker_id]
+        for marker_id in reference_marker_ids
+        if marker_id in markers_by_id
+    ]
+    missing_ids = [
+        marker_id
+        for marker_id in reference_marker_ids
+        if marker_id not in markers_by_id
+    ]
+    return found_markers, missing_ids
+
+
+def compose_dual_view(camera_frame, wall_frame):
+    target_height = min(camera_frame.shape[0], wall_frame.shape[0])
+    camera_resized = cv2.resize(
+        camera_frame,
+        (
+            int(camera_frame.shape[1] * target_height / camera_frame.shape[0]),
+            target_height,
+        ),
+    )
+    wall_resized = cv2.resize(
+        wall_frame,
+        (
+            int(wall_frame.shape[1] * target_height / wall_frame.shape[0]),
+            target_height,
+        ),
+    )
+    return cv2.hconcat([camera_resized, wall_resized])
+
+
+def build_wall_status_panel(wall_map_renderer, messages):
+    if isinstance(messages, str):
+        messages = [messages]
+
+    panel = wall_map_renderer.create_canvas()
+    wall_map_renderer.draw_wall_outline(panel)
+    wall_map_renderer.draw_grid(panel, step_mm=200)
+    wall_map_renderer.draw_axes(panel)
+
+    y = 80
+    for message in messages:
+        cv2.putText(
+            panel,
+            message,
+            (30, y),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (0, 0, 255),
+            2,
+            cv2.LINE_AA,
+        )
+        y += 40
+
+    return panel
 
 
 def export_pipeline_outputs(detection_payload, image_to_save, prefix, args):
@@ -202,6 +383,7 @@ def export_pipeline_outputs(detection_payload, image_to_save, prefix, args):
         marker_size_mm=args.marker_size_mm,
         origin_marker_id=args.origin_marker_id,
         origin_mode=args.origin,
+        reference_marker_ids=args.reference_marker_ids,
     )
     print_wall_results(wall_payload)
     save_wall_json_with_prefix(wall_payload, prefix, wall_output_dir)
@@ -301,9 +483,25 @@ def run_camera_mode(args):
         min_stable_frames=args.min_stable_frames,
         max_center_jump_px=args.stable_center_threshold_px,
     )
+    reference_marker_ids = args.reference_marker_ids
+    if reference_marker_ids:
+        reference_marker_ids = [int(marker_id) for marker_id in reference_marker_ids]
     frame_count = 0
     start_time = time.time()
     last_result_text = None
+
+    # For --show-wall-map mode
+    wall_map_renderer = None
+    last_printed_marker_positions = {}  # Track printed positions to avoid spam
+
+    if args.show_wall_map:
+        wall_map_renderer = WallMapRenderer(
+            wall_width_mm=FIXED_WALL_WIDTH_MM,
+            wall_height_mm=FIXED_WALL_HEIGHT_MM,
+            canvas_width=800,
+            canvas_height=600,
+        )
+        print("[INFO] --show-wall-map 已启用，将显示双视图（左：相机画面，右：墙面坐标图）")
 
     print("[INFO] 实时 pipeline 已启动，按 'q' 退出，按 's' 导出当前整套结果。")
 
@@ -323,28 +521,49 @@ def run_camera_mode(args):
             for event in events:
                 print(event)
 
+            fixed_reference_mode = bool(reference_marker_ids)
             stable_origin_result = None
-            if args.origin_marker_id is None and stable_results:
-                stable_origin_result = stable_results[0]
-            elif args.origin_marker_id is not None:
-                stable_origin_result = next(
-                    (result for result in stable_results if result["id"] == args.origin_marker_id),
-                    None,
+            stable_reference_markers = []
+            missing_reference_ids = []
+
+            if fixed_reference_mode:
+                stable_reference_markers, missing_reference_ids = (
+                    get_stable_reference_markers(stable_results, reference_marker_ids)
                 )
+                mapping_ready = not missing_reference_ids
+            else:
+                if args.origin_marker_id is None and stable_results:
+                    stable_origin_result = stable_results[0]
+                elif args.origin_marker_id is not None:
+                    stable_origin_result = next(
+                        (
+                            result
+                            for result in stable_results
+                            if result["id"] == args.origin_marker_id
+                        ),
+                        None,
+                    )
 
-            if stable_origin_result is not None and args.origin_marker_id is None:
-                args.origin_marker_id = stable_origin_result["id"]
+                if stable_origin_result is not None and args.origin_marker_id is None:
+                    args.origin_marker_id = stable_origin_result["id"]
 
-            if stable_origin_result is not None:
+                mapping_ready = stable_origin_result is not None
+
+            if stable_results:
                 result_text = format_results_text(
                     stable_results,
                     title="[INFO] 当前稳定检测结果",
                 )
                 if result_text != last_result_text:
                     print(result_text)
-                    print(
-                        f"[INFO] origin marker 已稳定: ID {stable_origin_result['id']}"
-                    )
+                    if fixed_reference_mode and mapping_ready:
+                        print(
+                            f"[INFO] reference markers 已稳定: IDs {reference_marker_ids}"
+                        )
+                    elif stable_origin_result is not None:
+                        print(
+                            f"[INFO] origin marker 已稳定: ID {stable_origin_result['id']}"
+                        )
                     last_result_text = result_text
 
             annotated_frame = annotate_detection_result(frame, filtered_results)
@@ -355,7 +574,108 @@ def run_camera_mode(args):
                 stable_results=stable_results,
             )
 
-            cv2.imshow(WINDOW_NAME, display_frame)
+            # Handle --show-wall-map mode
+            window_name = WINDOW_NAME
+            if args.show_wall_map and mapping_ready:
+                current_wall_stage = "pre_render"
+                current_wall_object_name = "stable_results"
+                current_wall_object = stable_results
+                try:
+                    # Compute wall coordinates for all markers
+                    current_wall_stage = "compute_marker_wall_coords"
+                    wall_markers = compute_marker_wall_coords(
+                        marker_list=stable_results,
+                        reference_marker=stable_origin_result,
+                        marker_size_mm=args.marker_size_mm,
+                        origin_mode=args.origin,
+                        reference_marker_ids=reference_marker_ids,
+                    )
+                    current_wall_object_name = "wall_markers"
+                    current_wall_object = wall_markers
+                    log_wall_map_input(
+                        reference_info=reference_marker_ids or args.origin_marker_id,
+                        stable_results=stable_results,
+                        wall_markers=wall_markers,
+                    )
+
+                    # Render the wall map
+                    current_wall_stage = "render_wall_map"
+                    wall_map_image = wall_map_renderer.render_wall_map(
+                        markers=wall_markers,
+                        reference_marker_id=args.origin_marker_id,
+                        reference_marker_ids=reference_marker_ids,
+                        marker_size_mm=int(args.marker_size_mm),
+                    )
+                    current_wall_object_name = "wall_map_image"
+                    current_wall_object = wall_map_image
+
+                    # Create side-by-side display
+                    current_wall_stage = "compose_dual_view"
+                    display_frame = compose_dual_view(display_frame, wall_map_image)
+                    window_name = "Camera + Wall Map"
+
+                    # Print marker positions (with throttling to avoid spam)
+                    active_reference_ids = set(
+                        reference_marker_ids
+                        if reference_marker_ids
+                        else [args.origin_marker_id]
+                    )
+                    for marker in wall_markers:
+                        current_wall_stage = "print_wall_marker_positions"
+                        current_wall_object_name = f"marker[{marker.get('id')}]"
+                        current_wall_object = marker
+                        if marker["id"] not in active_reference_ids:
+                            center = extract_xy(marker.get("wall_mm", {}).get("center"))
+                            if center is None:
+                                center = extract_xy(marker.get("wall_mm"))
+                            if center is None:
+                                continue
+
+                            marker_id = marker["id"]
+                            current_pos = (round(center[0], 1), round(center[1], 1))
+
+                            # Only print if new marker or position changed significantly
+                            last_pos = last_printed_marker_positions.get(marker_id)
+                            if last_pos is None or abs(last_pos[0] - current_pos[0]) > 5 or abs(last_pos[1] - current_pos[1]) > 5:
+                                print(
+                                    f"[INFO] marker {marker_id} -> wall_center_mm = ({center[0]:.1f}, {center[1]:.1f})"
+                                )
+                                last_printed_marker_positions[marker_id] = current_pos
+
+                except Exception as e:
+                    print(f"[WARN] Wall map rendering failed: {e}")
+                    log_wall_map_exception(
+                        stage=current_wall_stage,
+                        object_name=current_wall_object_name,
+                        obj=current_wall_object,
+                    )
+            elif args.show_wall_map:
+                if fixed_reference_mode:
+                    reference_label = ", ".join(
+                        str(marker_id) for marker_id in reference_marker_ids
+                    )
+                    status_lines = [
+                        f"Waiting for reference markers ({reference_label})..."
+                    ]
+                    if stable_reference_markers:
+                        status_lines.append(
+                            f"Visible: {[marker['id'] for marker in stable_reference_markers]}"
+                        )
+                    if missing_reference_ids:
+                        status_lines.append(
+                            f"Reference markers incomplete: missing {missing_reference_ids}"
+                        )
+                else:
+                    status_lines = ["Waiting for reference marker to stabilize..."]
+
+                wall_status_panel = build_wall_status_panel(
+                    wall_map_renderer,
+                    status_lines,
+                )
+                display_frame = compose_dual_view(display_frame, wall_status_panel)
+                window_name = "Camera + Wall Map"
+
+            cv2.imshow(window_name, display_frame)
             key = cv2.waitKey(1) & 0xFF
 
             if key == ord("q"):
@@ -363,7 +683,11 @@ def run_camera_mode(args):
                 break
 
             if key == ord("s"):
-                if stable_origin_result is None:
+                if fixed_reference_mode and not mapping_ready:
+                    print("[INFO] reference markers 尚未完整稳定，跳过当前导出。")
+                    continue
+
+                if not fixed_reference_mode and stable_origin_result is None:
                     print("[INFO] origin marker 尚未稳定，跳过当前导出。")
                     continue
 

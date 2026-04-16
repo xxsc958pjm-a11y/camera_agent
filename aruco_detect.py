@@ -5,6 +5,7 @@ import time
 from pathlib import Path
 
 import cv2
+import numpy as np
 
 from aruco_to_wall_coords import (
     OUTPUT_DIR as WALL_OUTPUT_DIR,
@@ -60,7 +61,7 @@ def parse_args():
     )
     parser.add_argument(
         "--origin",
-        choices=["top_left", "center"],
+        choices=["top_left", "center", "bottom_left"],
         default="top_left",
         help="Wall coordinate origin on the reference marker. Default: top_left",
     )
@@ -204,23 +205,71 @@ def draw_marker_info(image, marker_corners, marker_id):
     }
 
 
-def annotate_detection_result(image, corners, ids):
+def annotate_detection_result(image, corners_or_results, ids=None):
+    """
+    Annotate image with detected marker information.
+    
+    Supports two calling conventions:
+    1. Old API: annotate_detection_result(image, corners, ids) -> (annotated, results)
+    2. New API: annotate_detection_result(image, results) -> annotated
+    
+    Args:
+        image: Input image
+        corners_or_results: Either corners array (old API) or results list (new API)
+        ids: Marker IDs (only for old API)
+    
+    Returns:
+        If old API (ids is provided): (annotated_image, results)
+        If new API (ids is None): annotated_image
+    """
     annotated = image.copy()
-    results = []
-
-    if ids is None or len(corners) == 0:
+    
+    # Check which API is being used based on whether ids is provided
+    if ids is not None:
+        # Old API: corners_or_results contains corners, ids is provided
+        corners = corners_or_results
+        results = []
+        
+        if ids is None or len(corners) == 0:
+            return annotated, results
+        
+        for marker_corners, marker_id in zip(corners, ids.flatten()):
+            marker_result = draw_marker_info(annotated, marker_corners, marker_id)
+            results.append(marker_result)
+        
         return annotated, results
+    else:
+        # New API: corners_or_results contains results list
+        results = corners_or_results
+        
+        if not results:
+            return annotated
+        
+        for result in results:
+            marker_id = result["id"]
+            # Convert corners back to the format expected by draw_marker_info
+            corners_list = result["corners"]
+            
+            # Reconstruct marker_corners array
+            marker_corners = np.array([corners_list], dtype=np.float32).reshape(1, 4, 2)[0]
+            
+            # Draw on image (but don't update result, just use it to draw)
+            draw_marker_info(annotated, marker_corners, marker_id)
+        
+        return annotated
 
-    for marker_corners, marker_id in zip(corners, ids.flatten()):
-        marker_result = draw_marker_info(annotated, marker_corners, marker_id)
-        results.append(marker_result)
 
-    return annotated, results
-
-
-def build_detection_payload(results, frame_shape, dictionary_name, source):
+def build_detection_payload(
+    results,
+    frame_shape,
+    dictionary_name,
+    source,
+    marker_size_mm=None,
+    camera_matrix=None,
+    dist_coeffs=None,
+):
     height, width = frame_shape[:2]
-    return {
+    payload = {
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
         "source": source,
         "dictionary": dictionary_name,
@@ -244,12 +293,21 @@ def build_detection_payload(results, frame_shape, dictionary_name, source):
         ],
     }
 
+    if marker_size_mm is not None:
+        payload["marker_size_mm"] = marker_size_mm
+    if camera_matrix is not None:
+        payload["camera_matrix"] = camera_matrix
+    if dist_coeffs is not None:
+        payload["dist_coeffs"] = dist_coeffs
 
-def format_results_text(results):
+    return payload
+
+
+def format_results_text(results, title=None):
     if not results:
-        return "[INFO] 未检测到 Aruco 标签。"
+        return title or "[INFO] 未检测到 Aruco 标签。"
 
-    lines = [f"[INFO] 检测到 {len(results)} 个 Aruco 标签:"]
+    lines = [title or f"[INFO] 检测到 {len(results)} 个 Aruco 标签:"]
     for result in results:
         lines.append(f"  - ID: {result['id']}")
         lines.append(f"    四个角点: {result['corners']}")
@@ -330,7 +388,7 @@ def show_image_result(image, image_path, output_dir, payload):
     cv2.destroyAllWindows()
 
 
-def draw_live_info(frame, frame_count, start_time):
+def draw_live_info(frame, frame_count, start_time, stable_results=None):
     elapsed = time.time() - start_time
     fps = frame_count / elapsed if elapsed > 0 else 0.0
     height, width = frame.shape[:2]
@@ -439,6 +497,86 @@ def run_camera_mode(args, dictionary_name, dictionary, output_dir):
         cap.release()
         cv2.destroyAllWindows()
         print("[INFO] Camera released, windows closed.")
+
+
+def collect_marker_results(corners, ids):
+    """
+    Convert detected Aruco markers (corners and ids) into result list format.
+    
+    Args:
+        corners: List of detected corners from cv2.aruco
+        ids: Array of detected marker IDs from cv2.aruco
+    
+    Returns:
+        List of marker result dicts with 'id', 'corners', 'center' fields
+    """
+    results = []
+    
+    if ids is None or len(corners) == 0:
+        return results
+    
+    for marker_corners, marker_id in zip(corners, ids.flatten()):
+        # Create a dummy image for draw_marker_info (we don't need it but the function modifies it)
+        dummy_image = np.zeros((1, 1, 3), dtype=np.uint8)
+        marker_result = draw_marker_info(dummy_image, marker_corners, marker_id)
+        results.append(marker_result)
+    
+    return results
+
+
+def get_pose_inputs(args):
+    """
+    Extract camera matrix and distortion coefficients from args.
+    
+    Args:
+        args: Parsed command-line arguments
+    
+    Returns:
+        Dict with 'camera_matrix' and 'dist_coeffs' keys (both None for now)
+    """
+    # For now, return None for both - pose estimation is not yet implemented
+    camera_matrix = None
+    dist_coeffs = None
+    
+    # In the future, these could be loaded from files specified in:
+    # args.camera_matrix
+    # args.dist_coeffs
+    
+    return {
+        "camera_matrix": camera_matrix,
+        "dist_coeffs": dist_coeffs,
+    }
+
+
+def filter_and_enrich_results(raw_results, args, pose_inputs):
+    """
+    Filter and enrich marker results based on args and pose inputs.
+    
+    Args:
+        raw_results: Raw marker results from collect_marker_results
+        args: Parsed command-line arguments
+        pose_inputs: Dict with camera matrix and distortion coefficients
+    
+    Returns:
+        Filtered and enriched marker results
+    """
+    from aruco_runtime import filter_marker_results, attach_pose_estimates
+    
+    # Filter by marker IDs if specified
+    filtered_results = filter_marker_results(
+        raw_results,
+        target_marker_ids=args.target_marker_ids if hasattr(args, 'target_marker_ids') else None
+    )
+    
+    # Attach pose estimates
+    enriched_results = attach_pose_estimates(
+        filtered_results,
+        marker_size_mm=args.marker_size_mm if hasattr(args, 'marker_size_mm') else None,
+        camera_matrix=pose_inputs.get("camera_matrix"),
+        dist_coeffs=pose_inputs.get("dist_coeffs"),
+    )
+    
+    return enriched_results
 
 
 def main():
