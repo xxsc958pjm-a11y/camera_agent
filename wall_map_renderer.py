@@ -161,6 +161,20 @@ class WallMapRenderer:
         - marker["wall_mm"] = {"x": ..., "y": ...}
         - marker["wall_mm"] = (x, y) / [x, y]
         """
+        filtered_center = self.normalize_point(
+            marker.get("filtered_wall_center_mm"),
+            "marker.filtered_wall_center_mm",
+        )
+        if filtered_center is not None:
+            return filtered_center
+
+        raw_center = self.normalize_point(
+            marker.get("raw_wall_center_mm"),
+            "marker.raw_wall_center_mm",
+        )
+        if raw_center is not None:
+            return raw_center
+
         wall_mm = marker.get("wall_mm")
         if wall_mm is None:
             return None
@@ -338,6 +352,7 @@ class WallMapRenderer:
         reference_marker_id=None,
         marker_size_mm=50,
         reference_marker_ids=None,
+        mapping_info=None,
     ):
         """
         Render a complete wall map with all markers.
@@ -347,6 +362,7 @@ class WallMapRenderer:
             reference_marker_id: ID of reference marker (if any)
             marker_size_mm: Size of markers in millimeters
             reference_marker_ids: Optional list of reference marker IDs
+            mapping_info: Optional mapping validation metadata
 
         Returns:
             OpenCV image (numpy array) with the wall map
@@ -410,14 +426,14 @@ class WallMapRenderer:
             current_stage = "draw_header"
             current_object_name = "reference_marker_ids"
             current_object = reference_info
-            self._draw_header(canvas, reference_info, len(markers))
+            self._draw_header(canvas, reference_info, len(markers), mapping_info)
 
             return canvas
         except Exception:
             self._debug_log_exception(current_stage, current_object_name, current_object)
             raise
 
-    def _draw_header(self, canvas, reference_info, marker_count):
+    def _draw_header(self, canvas, reference_info, marker_count, mapping_info=None):
         """Draw header information on the canvas."""
         header_text = f"Wall Map: {self.wall_width_mm}x{self.wall_height_mm} mm | Markers: {marker_count}"
         if reference_info:
@@ -434,6 +450,26 @@ class WallMapRenderer:
             cv2.FONT_HERSHEY_SIMPLEX,
             0.6,
             (0, 0, 0),
+            1,
+            cv2.LINE_AA,
+        )
+
+        if mapping_info is None:
+            return
+
+        mapping_valid = mapping_info.get("mapping_valid")
+        reprojection_error_px = mapping_info.get("reprojection_error_px")
+        status_text = f"Mapping: {'valid' if mapping_valid else 'invalid'}"
+        if reprojection_error_px is not None:
+            status_text += f" | Reproj err: {reprojection_error_px:.2f} px"
+
+        cv2.putText(
+            canvas,
+            status_text,
+            (10, 48),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.55,
+            (40, 40, 40),
             1,
             cv2.LINE_AA,
         )

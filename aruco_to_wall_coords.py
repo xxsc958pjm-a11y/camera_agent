@@ -11,6 +11,7 @@ import numpy as np
 OUTPUT_DIR = Path("outputs/wall_coords")
 FIXED_WALL_WIDTH_MM = 1030.0
 FIXED_WALL_HEIGHT_MM = 1420.0
+REPROJECTION_ERROR_THRESHOLD_PX = 3.0
 DEFAULT_REFERENCE_MARKER_IDS = [37, 25, 12, 8]
 FIXED_REFERENCE_MARKER_WALL_CORNERS = {
     37: np.array(
@@ -293,7 +294,27 @@ def compute_fixed_reference_homography(reference_markers, reference_marker_ids):
     if homography is None:
         raise RuntimeError("固定参考单应性矩阵计算失败")
 
-    return homography
+    return homography, image_points, wall_points
+
+
+def compute_fixed_reference_reprojection_error_px(homography, image_points, wall_points):
+    if homography is None:
+        return None
+
+    try:
+        inverse_homography = np.linalg.inv(homography)
+    except np.linalg.LinAlgError:
+        return None
+
+    reprojected_image_points = transform_points(inverse_homography, wall_points)
+    if len(reprojected_image_points) != len(image_points):
+        return None
+
+    errors = np.linalg.norm(reprojected_image_points - image_points, axis=1)
+    if errors.size == 0:
+        return None
+
+    return float(errors.mean())
 
 
 def transform_points(homography, points):
@@ -359,6 +380,23 @@ def build_fixed_reference_metadata(reference_marker_ids, marker_size_mm):
     }
 
 
+def build_mapping_info(
+    reference_ids_detected,
+    mapping_valid,
+    reprojection_error_px=None,
+):
+    return {
+        "reference_ids_detected": [int(marker_id) for marker_id in reference_ids_detected],
+        "mapping_valid": bool(mapping_valid),
+        "reprojection_error_px": (
+            round(float(reprojection_error_px), 3)
+            if reprojection_error_px is not None
+            else None
+        ),
+        "reprojection_error_threshold_px": REPROJECTION_ERROR_THRESHOLD_PX,
+    }
+
+
 def build_wall_payload(
     detection_payload,
     marker_size_mm,
@@ -375,9 +413,22 @@ def build_wall_payload(
             normalized_reference_ids,
             require_all=True,
         )
-        homography = compute_fixed_reference_homography(
+        homography, image_points, wall_points = compute_fixed_reference_homography(
             reference_markers,
             normalized_reference_ids,
+        )
+        reprojection_error_px = compute_fixed_reference_reprojection_error_px(
+            homography,
+            image_points,
+            wall_points,
+        )
+        mapping_info = build_mapping_info(
+            reference_ids_detected=normalized_reference_ids,
+            mapping_valid=(
+                reprojection_error_px is not None
+                and reprojection_error_px < REPROJECTION_ERROR_THRESHOLD_PX
+            ),
+            reprojection_error_px=reprojection_error_px,
         )
         reference_metadata = build_fixed_reference_metadata(
             normalized_reference_ids,
@@ -392,16 +443,28 @@ def build_wall_payload(
             origin_mode,
         )
         y_axis = "up" if origin_mode == "bottom_left" else "down"
+        mapping_info = build_mapping_info(
+            reference_ids_detected=[reference_marker["id"]],
+            mapping_valid=True,
+        )
 
-    transformed_markers = [
-        marker_points_to_wall(marker, homography) for marker in markers
-    ]
+    transformed_markers = []
+    if mapping_info["mapping_valid"]:
+        transformed_markers = [
+            marker_points_to_wall(marker, homography) for marker in markers
+        ]
 
     return {
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
         "source_detection": detection_payload.get("source"),
         "dictionary": detection_payload.get("dictionary"),
         "image_size": detection_payload.get("image_size"),
+        "reference_ids_detected": mapping_info["reference_ids_detected"],
+        "mapping_valid": mapping_info["mapping_valid"],
+        "reprojection_error_px": mapping_info["reprojection_error_px"],
+        "reprojection_error_threshold_px": mapping_info[
+            "reprojection_error_threshold_px"
+        ],
         "reference_marker": reference_metadata,
         "coordinate_system": {
             "unit": "mm",
@@ -440,6 +503,8 @@ def convert_detection_to_wall_payload(
 
 def print_wall_results(payload):
     reference = payload["reference_marker"]
+    mapping_valid = payload.get("mapping_valid", True)
+    reprojection_error_px = payload.get("reprojection_error_px")
     if "ids" in reference:
         layout_summary = "+".join(
             f"{marker_id}:{reference['layouts'][str(marker_id)]}"
@@ -450,15 +515,22 @@ def print_wall_results(payload):
             f"reference_marker_ids={reference['ids']}, "
             f"marker_size_mm={reference['marker_size_mm']}, "
             f"origin={reference['origin_mode']}, "
-            f"layout={layout_summary}"
+            f"layout={layout_summary}, "
+            f"mapping_valid={mapping_valid}, "
+            f"reprojection_error_px={reprojection_error_px}"
         )
     else:
         print(
             "[INFO] 已生成墙面坐标: "
             f"reference_marker_id={reference['id']}, "
             f"marker_size_mm={reference['marker_size_mm']}, "
-            f"origin={reference['origin_mode']}"
+            f"origin={reference['origin_mode']}, "
+            f"mapping_valid={mapping_valid}"
         )
+
+    if not mapping_valid:
+        print("[WARN] 当前帧映射无效，已跳过 wall_center_mm 输出。")
+        return
 
     for marker in payload["markers"]:
         center = marker["wall_mm"]["center"]
@@ -500,6 +572,7 @@ def compute_marker_wall_coords(
     marker_size_mm=None,
     origin_mode="top_left",
     reference_marker_ids=None,
+    return_mapping_info=False,
 ):
     """
     Compute wall coordinates for a list of markers given a reference marker.
@@ -511,10 +584,12 @@ def compute_marker_wall_coords(
         reference_marker: Reference marker dict (typically used for single-marker homography)
         marker_size_mm: Physical marker size in millimeters
         origin_mode: Origin mode ('top_left', 'center', or 'bottom_left')
-        reference_marker_ids: Optional fixed reference marker IDs for dual-reference mapping
+        reference_marker_ids: Optional fixed reference marker IDs for fixed-reference mapping
+        return_mapping_info: When True, also return mapping validity metadata
 
     Returns:
-        List of marker dicts with 'id' and 'wall_mm' containing transformed coordinates
+        List of marker dicts with 'id' and 'wall_mm' containing transformed coordinates.
+        When return_mapping_info=True, returns (markers, mapping_info).
     """
     normalized_reference_ids = normalize_reference_marker_ids(reference_marker_ids)
     if normalized_reference_ids is not None:
@@ -523,16 +598,38 @@ def compute_marker_wall_coords(
             normalized_reference_ids,
             require_all=True,
         )
-        homography = compute_fixed_reference_homography(
+        homography, image_points, wall_points = compute_fixed_reference_homography(
             reference_markers,
             normalized_reference_ids,
         )
+        reprojection_error_px = compute_fixed_reference_reprojection_error_px(
+            homography,
+            image_points,
+            wall_points,
+        )
+        mapping_info = build_mapping_info(
+            reference_ids_detected=normalized_reference_ids,
+            mapping_valid=(
+                reprojection_error_px is not None
+                and reprojection_error_px < REPROJECTION_ERROR_THRESHOLD_PX
+            ),
+            reprojection_error_px=reprojection_error_px,
+        )
     else:
         homography = compute_homography(reference_marker, marker_size_mm, origin_mode)
+        mapping_info = build_mapping_info(
+            reference_ids_detected=[reference_marker["id"]] if reference_marker else [],
+            mapping_valid=True,
+        )
 
-    transformed_markers = [
-        marker_points_to_wall(marker, homography) for marker in marker_list
-    ]
+    transformed_markers = []
+    if mapping_info["mapping_valid"]:
+        transformed_markers = [
+            marker_points_to_wall(marker, homography) for marker in marker_list
+        ]
+
+    if return_mapping_info:
+        return transformed_markers, mapping_info
     return transformed_markers
 
 
