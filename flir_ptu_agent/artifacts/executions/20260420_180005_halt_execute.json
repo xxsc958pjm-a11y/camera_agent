@@ -1,0 +1,22 @@
+{
+  "axis": "halt",
+  "command": "H",
+  "response_status_code": 200,
+  "response_text": "{ \"H\" : \"*\", \"status\" : \"*\" }",
+  "before_status": {
+    "PP": "223",
+    "TP": "-4491",
+    "PD": "0",
+    "TD": "0",
+    "C": "I",
+    "status": "*"
+  },
+  "after_status": {
+    "PP": "224",
+    "TP": "-4491",
+    "PD": "0",
+    "TD": "0",
+    "C": "I",
+    "status": "*"
+  }
+}

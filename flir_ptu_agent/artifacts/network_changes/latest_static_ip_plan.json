@@ -1,0 +1,54 @@
+{
+  "current_host": "169.254.214.194",
+  "current_base_url": "http://169.254.214.194",
+  "current_mode": "D",
+  "current_ip": "169.254.214.194",
+  "current_subnet_mask": "255.255.0.0",
+  "current_gateway": "0.0.0.0",
+  "target_static_ip": "169.254.74.177",
+  "target_subnet_mask": "255.255.0.0",
+  "target_gateway": "0.0.0.0",
+  "recommended_host_pc_ip": "169.254.74.100",
+  "script_inferred_network_endpoints": [
+    {
+      "kind": "network_apply",
+      "url": "http://169.254.214.194/API/PTCmd",
+      "method": "POST",
+      "form_fields": [
+        "NN",
+        "NA",
+        "NM",
+        "NI",
+        "NS",
+        "NG"
+      ],
+      "reason": "index.js posts the serialized network form to /API/PTCmd when SendNetwork is clicked."
+    },
+    {
+      "kind": "network_save",
+      "url": "http://169.254.214.194/API/PTCmd",
+      "method": "POST",
+      "command": "ds",
+      "reason": "index.js posts 'ds' to /API/PTCmd when SaveNetwork is clicked."
+    },
+    {
+      "kind": "network_reset",
+      "url": "http://169.254.214.194/API/PTCmd",
+      "method": "POST",
+      "command": "df&r",
+      "reason": "index.js posts 'df&r' to /API/PTCmd when ResetNetwork is clicked."
+    }
+  ],
+  "warnings": [
+    "This script only generates a migration plan. It does not write PTU network settings.",
+    "Changing PTU network settings can drop the current HTTP session immediately.",
+    "The web UI suggests Set/Save/Reset network actions exist, but this project does not execute them by default."
+  ],
+  "config_update": {
+    "host": "169.254.74.177",
+    "planned_static_ip": "169.254.74.177",
+    "planned_subnet_mask": "255.255.0.0",
+    "planned_gateway": "0.0.0.0",
+    "planned_host_pc_ip": "169.254.74.100"
+  }
+}

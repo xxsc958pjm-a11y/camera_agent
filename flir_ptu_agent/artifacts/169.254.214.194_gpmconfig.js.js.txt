@@ -1,0 +1,169 @@
+
+var fBiasInc = .01;	      
+var PI = 3.14159;
+
+$(document).ready(function() {
+
+    clientSideInclude('topmenu', 'header.html');
+    clientSideInclude('footer', 'footer.html');
+    CommonAjaxSetup();
+    
+    $("#SendPose").click(function()
+			 {
+			     cmd = "GR=" + $("#GR").val() + "&GP=" + $("#GP").val() + "&GY=" + $("#GY").val();
+			     PTCmd(cmd, UpdateData);					  
+			 });
+
+    $("#SendGPS").click(function()
+			{
+			    cmd = "GL=" + $("#GL").val() + "&GO=" + $("#GO").val() + "&GA=" + $("#GA").val() + "&GCP=" + $("#GCP").val();
+			    PTCmd(cmd, UpdateData);					  
+			});
+    
+    
+
+    
+    $("#SendResetFactory").click(function() 
+				 {
+				     $.ajax({url: "/API/PTCmd", 
+					     type: "POST",
+					     data: "GDF", 
+					     success: function (data)
+					     {
+						 GenericJson(data);
+					     },
+					     complete: UpdateData
+					    });
+				 });
+
+    $("#SendSaveDefault").click(function() 
+				{
+				    //alert("send save default " + "DS");
+				    $.post("/API/PTCmd", 
+					   "GDS",
+					   GenericJson,
+					   "json");
+				    
+				});
+
+    $("#SendOptions").click(function()
+			    {
+				val = $('input:radio[name=pointtype]:checked').val();
+				cmd = 'GPT=' + val;
+				$.post("/API/PTCmd",
+				       cmd,
+				       GenericJson,
+				       "json");
+			    });
+
+    $("#SendRestoreDefault").click(function() 
+				   {
+				       $.post("/API/PTCmd", 
+					      "GDR",
+					      UpdateData,
+					      "json");
+				       
+				       
+				   });
+
+    $("#RefreshData").click(function() 
+			    {
+				UpdateData();
+			    });
+    
+    
+    UpdateData();
+    //$("#landmarktable").show();
+    
+});
+
+
+
+function UpdateData()
+{
+
+    $.post("/API/PTCmd", 
+	   "V&VM",
+	   UpdateDataFromJson,
+	   "json");
+    $.post("/API/PTCmd",
+	   "GS&GPT",
+	   UpdateDataFromJson,
+	   "json");
+    $.post("/API/PTCmd",
+	   "GL&GO&GA",
+	   UpdateDataFromJson,
+	   "json");
+    $.post("/API/PTCmd",
+	   "GR&GP&GY&GCP",
+	   UpdateDataFromJson,
+	   "json");
+    $.post("/API/PTCmd",
+	   "GCQ",
+	   UpdateDataFromJson,
+	   "json");
+    FetchLandmarks();
+    
+}
+
+
+function UpdateDataFromJson(data)
+{
+    $.each(data, function(key, val) {
+	
+     	switch(key)
+	{
+	case 'GA':
+	    $("#GA").val(val);
+	    break;
+	case 'GCP':
+	    $("#GCP").val(val);
+	    break;
+	case 'GCQ':
+	    $("#GCQ").html(val);
+	    break;
+	case 'GL':
+	    $("#GL").val(val);
+	    break;
+	case 'GO':
+	    $("#GO").val(val);
+	    break;
+	case 'GP':
+	    $("#GP").val(val);
+	    break;
+	case 'GPT':
+	    if(val == "0")
+	    {
+		$("#GPM0").attr('checked', true);
+		$("#GPM1").attr('checked', false);
+	    }
+	    else if(val == "1")
+	    {
+		$("#GPM0").attr('checked', false);
+		$("#GPM1").attr('checked', true);
+	    }
+	    break;
+	case 'GR':
+	    $("#GR").val(val);
+	    break;
+	case 'GS':
+	    $("#GS").html(GPMStatusStr(val));
+	    break;
+	case 'GY':
+	    $("#GY").val(val);
+	    break;
+	case 'V':
+	    $("#firmware").html(val);
+	    break;
+	case 'VM':
+	    $("#model").html(val);
+	    break;
+	}
+	
+    });
+}
+
+
+
+
+

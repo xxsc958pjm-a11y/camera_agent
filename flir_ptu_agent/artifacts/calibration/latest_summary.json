@@ -1,0 +1,97 @@
+{
+  "axis": "pan",
+  "dry_run": false,
+  "requested_steps": [
+    5,
+    10,
+    20
+  ],
+  "results": [
+    {
+      "axis": "pan",
+      "requested_step": 5,
+      "success": true,
+      "dry_run": false,
+      "before_status": {
+        "PP": "224",
+        "TP": "-4470",
+        "PD": "0",
+        "TD": "20",
+        "C": "I",
+        "status": "*"
+      },
+      "after_status": {
+        "PP": "225",
+        "TP": "-4469",
+        "PD": "0",
+        "TD": "0",
+        "C": "I",
+        "status": "*"
+      },
+      "delta_PP": 1,
+      "delta_TP": 1,
+      "response_text": "{ \"C\" : \"*\", \"PS\" : \"*\", \"TS\" : \"*\", \"PO\" : \"*\", \"status\" : \"*\" }",
+      "halt_response_text": "{ \"H\" : \"*\", \"status\" : \"*\" }",
+      "error": null
+    },
+    {
+      "axis": "pan",
+      "requested_step": 10,
+      "success": true,
+      "dry_run": false,
+      "before_status": {
+        "PP": "225",
+        "TP": "-4469",
+        "PD": "0",
+        "TD": "0",
+        "C": "I",
+        "status": "*"
+      },
+      "after_status": {
+        "PP": "228",
+        "TP": "-4469",
+        "PD": "10",
+        "TD": "0",
+        "C": "I",
+        "status": "*"
+      },
+      "delta_PP": 3,
+      "delta_TP": 0,
+      "response_text": "{ \"C\" : \"*\", \"PS\" : \"*\", \"TS\" : \"*\", \"PO\" : \"*\", \"status\" : \"*\" }",
+      "halt_response_text": "{ \"H\" : \"*\", \"status\" : \"*\" }",
+      "error": null
+    },
+    {
+      "axis": "pan",
+      "requested_step": 20,
+      "success": true,
+      "dry_run": false,
+      "before_status": {
+        "PP": "233",
+        "TP": "-4469",
+        "PD": "0",
+        "TD": "0",
+        "C": "I",
+        "status": "*"
+      },
+      "after_status": {
+        "PP": "238",
+        "TP": "-4469",
+        "PD": "20",
+        "TD": "0",
+        "C": "I",
+        "status": "*"
+      },
+      "delta_PP": 5,
+      "delta_TP": 0,
+      "response_text": "{ \"C\" : \"*\", \"PS\" : \"*\", \"TS\" : \"*\", \"PO\" : \"*\", \"status\" : \"*\" }",
+      "halt_response_text": "{ \"H\" : \"*\", \"status\" : \"*\" }",
+      "error": null
+    }
+  ],
+  "stopped_on_error": false,
+  "notes": [
+    "Requested step size does not necessarily match final PP/TP delta one-to-one.",
+    "Each execute sample is followed by a halt command."
+  ]
+}

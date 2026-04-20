@@ -1,0 +1,12 @@
+ptu:
+  host: 169.254.214.194
+  timeout_sec: 2.0
+  verify_http: false
+  safe_mode: true
+  max_pan_step: 50
+  max_tilt_step: 50
+  default_scheme: http
+  planned_static_ip: 169.254.74.177
+  planned_subnet_mask: 255.255.0.0
+  planned_gateway: 0.0.0.0
+  planned_host_pc_ip: 169.254.74.100

@@ -1,0 +1,22 @@
+{
+  "axis": "pan",
+  "command": "C=I&PS=5&TS=5&PO=5",
+  "response_status_code": 200,
+  "response_text": "{ \"C\" : \"*\", \"PS\" : \"*\", \"TS\" : \"*\", \"PO\" : \"*\", \"status\" : \"*\" }",
+  "before_status": {
+    "PP": "224",
+    "TP": "-4470",
+    "PD": "0",
+    "TD": "20",
+    "C": "I",
+    "status": "*"
+  },
+  "after_status": {
+    "PP": "225",
+    "TP": "-4469",
+    "PD": "0",
+    "TD": "0",
+    "C": "I",
+    "status": "*"
+  }
+}

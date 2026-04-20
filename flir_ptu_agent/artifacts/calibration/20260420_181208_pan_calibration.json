@@ -1,0 +1,55 @@
+{
+  "axis": "pan",
+  "dry_run": true,
+  "requested_steps": [
+    5,
+    10,
+    20
+  ],
+  "results": [
+    {
+      "axis": "pan",
+      "requested_step": 5,
+      "success": true,
+      "dry_run": true,
+      "before_status": {},
+      "after_status": {},
+      "delta_PP": null,
+      "delta_TP": null,
+      "response_text": "Dry run only. Would execute pan step 5 and then halt.",
+      "halt_response_text": null,
+      "error": null
+    },
+    {
+      "axis": "pan",
+      "requested_step": 10,
+      "success": true,
+      "dry_run": true,
+      "before_status": {},
+      "after_status": {},
+      "delta_PP": null,
+      "delta_TP": null,
+      "response_text": "Dry run only. Would execute pan step 10 and then halt.",
+      "halt_response_text": null,
+      "error": null
+    },
+    {
+      "axis": "pan",
+      "requested_step": 20,
+      "success": true,
+      "dry_run": true,
+      "before_status": {},
+      "after_status": {},
+      "delta_PP": null,
+      "delta_TP": null,
+      "response_text": "Dry run only. Would execute pan step 20 and then halt.",
+      "halt_response_text": null,
+      "error": null
+    }
+  ],
+  "stopped_on_error": false,
+  "notes": [
+    "Requested step size does not necessarily match final PP/TP delta one-to-one.",
+    "Each execute sample is followed by a halt command."
+  ]
+}

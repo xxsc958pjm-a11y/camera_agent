@@ -1,0 +1,26 @@
+[
+  {
+    "kind": "halt",
+    "url": "http://169.254.214.194/API/PTCmd",
+    "method": "POST",
+    "command": "H",
+    "reason": "control.js binds the Halt button to PTCmd('H').",
+    "validated_at": "2026-04-20T17:55:10.144468+00:00"
+  },
+  {
+    "kind": "pan",
+    "url": "http://169.254.214.194/API/PTCmd",
+    "method": "POST",
+    "command_template": "C=I&PS={pan_speed}&TS={tilt_speed}&PO={step}",
+    "reason": "control.js sends PO through /API/PTCmd for pan position offsets.",
+    "validated_at": "2026-04-20T17:55:14.579322+00:00"
+  },
+  {
+    "kind": "tilt",
+    "url": "http://169.254.214.194/API/PTCmd",
+    "method": "POST",
+    "command_template": "C=I&PS={pan_speed}&TS={tilt_speed}&TO={step}",
+    "reason": "control.js sends TO through /API/PTCmd for tilt position offsets.",
+    "validated_at": "2026-04-20T18:00:02.738775+00:00"
+  }
+]

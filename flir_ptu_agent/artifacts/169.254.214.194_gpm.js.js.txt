@@ -1,0 +1,257 @@
+//global vars, for realz
+var bLandmarksHidden;
+
+$(document).ready(function(){ PTCmd('GPM', GpmExistsCB)});
+
+function GpmExistsCB(json){
+    if(json['GPM'] && json['GPM'] != 0){
+        AddGpmControls();
+    }
+}
+
+
+function AddGpmControls(){
+    if($("#GpmPointing").length){
+        $("#GpmPointing").load('gpmpointing.html', AddGpmPointing);
+    }
+    if($("#GpmLandmarks").length){
+        $("#GpmLandmarks").load('gpmlandmarkadd.html', AddGpmLandmarkAddRow);
+    }
+}
+
+
+
+function AddGpmPointing()
+{
+    $("#GpmPointExpand").toggle( function() {
+            $("#GpmLatLonRow").show();
+            $("#GpmAltAppRow").show();
+            $("#GpmExpandImg").attr("src", "graphics/dexarrow11.png");
+            },
+            function() {
+            $("#GpmLatLonRow").hide();
+            $("#GpmAltAppRow").hide();
+            $("#GpmExpandImg").attr("src", "graphics/dblexarrow11.png");
+            });
+
+    $("#SendGpm").click(function() {
+            strCmd = '';
+
+            /* if we are running, we don't want to send the C=I */
+            if($("#stabstatus").html() != "Running")
+            {
+            strCmd += "C=I&";
+            }
+            strCmd += "GG" + "=" + $("#lat").val() + ':' + $("#lon").val() + ":" + $("#alt").val();
+
+            $.ajax({data: strCmd,
+                error: function() {
+                $("#gpmpointerror").show();
+                $("#gpmpointerror").fadeOut(3000);
+                }
+                });
+
+            $("#controlpos").attr("checked", "true");
+            });
+
+    LoadHorizontalDividers();
+}
+
+
+function AddGpmLandmarkAddRow()
+{
+    $("#AddLandmark").click(function() {
+            cmd = "GMA=" + $("#NLandName").val() + ":" + 
+            $("#NLandLat").val() + ":" + 
+            $("#NLandLon").val() + ":" + 
+            $("#NLandAlt").val();
+            $.ajax({data:cmd,
+                error: function() {
+                $("#lmadderror").show();
+                $("#lmadderror").fadeOut(3000);
+                },
+                success: FetchLandmarks
+                });
+
+    });
+
+    $("#GpmLandmarkExpand").toggle( function() {
+            HideLandmarks(false);
+            $("#GpmLandmarkImg").attr("src", "graphics/dexarrow11.png");
+            },
+            function() {
+            HideLandmarks(true);
+            $("#GpmLandmarkImg").attr("src", "graphics/dblexarrow11.png");
+            });
+
+    $("#GPMCalibrate").click(function()
+            {
+            iCnt = $("tr[class='landmark']").length;
+            if(iCnt < 4)
+            {
+            alert("Must have at least 4 landmarks to calibrate");
+            return;
+            }
+            $.ajax({   data: "GC",
+                success: CheckGeoCalibrationDoneWrapper});
+            });
+
+    FetchLandmarks();
+    //hidden by default
+    HideLandmarks(true);
+    LoadHorizontalDividers();
+}
+
+function HideLandmarks(bHide)
+{
+  if(bHide)
+    {
+	bLandmarksHidden = true;
+	$(".landmark").hide();
+	$(".landmarkrow").hide();
+    }
+  else
+    {
+	bLandmarksHidden = false;
+	$(".landmark").show();
+	$(".landmarkrow").show();
+    }
+
+}
+
+function FetchLandmarks()
+{
+  $.ajax({
+    type: 'POST',
+    url: '/API/PTCmd',
+	data: "GCQ&GM",
+	success: function(data){
+	$.each(data, function(key, val)
+	       {
+		 if(key == 'GM')
+		   {
+		     ParseAndSetLandmarks(val);
+		   }
+		 else if(key == 'GCQ')
+		   {
+		     $("#GCQ").html(val + "&deg");
+		   }
+	       });
+      }
+    });
+
+}
+
+iNumLandmarkFields = 7;
+function ParseAndSetLandmarks(str)
+{
+
+  RemoveLandmarks();
+
+  splits = str.split(":");
+
+    for(i = 0; i < Math.floor(splits.length / iNumLandmarkFields); i++)
+    {
+	name = "landmark" + i;
+	delid = "GMD=" + i;
+      $("#LandmarkAdd").before('<tr class="landmark" id=' + name + '><td id="NUM" class="data">' + i + 
+			       '</td><td id="NAME" class="data blue">' + splits[i * iNumLandmarkFields + 0] + 
+			       '</td><td id="LAT" class="data blue">' + splits[i * iNumLandmarkFields + 1] +
+			       '</td><td id="LON" class="data blue">' + splits[i * iNumLandmarkFields + 2] +
+			       '</td><td id="ALT" class="data blue">' + splits[i * iNumLandmarkFields + 3] +
+			       '</td><td id="PAN" class="data blue" width="40px">' + splits[i * iNumLandmarkFields + 4] +
+			       '</td><td id="TILT" class="data blue" width="40px">' + splits[i * iNumLandmarkFields + 5] +
+			       '</td><td id="ERR" class="data blue">' + splits[i * iNumLandmarkFields + 6] +
+			       '</tr>');
+    
+      $(document.createElement("img"))
+	.attr({ src: 'graphics/delete_icon.gif', title: 'Delete Landmark', id: delid })
+	.addClass("landmarkdelete")
+	.appendTo($("#" + name))
+	.click(function(){
+		 cmd = $(this).attr('id');
+		 $.ajax({data: cmd,
+			 success: FetchLandmarks});
+	       });
+
+	if(bLandmarksHidden)
+	{
+	    $("#" + name).hide();
+	}
+    }
+}
+
+
+function RemoveLandmarks()
+{
+  $("tr[class ='landmark']").remove();
+}
+
+	 
+//This function is here so it waits for the calib task to start before querying status
+function CheckGeoCalibrationDoneWrapper()
+{
+  setTimeout(CheckGeoCalibrationDone, 500);
+}
+
+function CheckGeoCalibrationDone()
+{
+  var status;
+  $("#GS").html("Calibrating");
+  
+  $.post("/API/PTCmd", 
+	 "GS", 
+	 function (data)
+	 {
+	   $.each(data, function (key,val)
+		  {
+		    switch(key)
+		      {
+		      case 'GS':
+			  str = GPMStatusStr(val);
+			  $("#GS").html(str);
+			  if(str.match('Fail') != null)
+			  {
+			      alert("Calibration Failed");
+			  }
+			  else if(str.match('Ready') != null)
+			  {
+			      alert("Calibration Successful");
+			      UpdateData();
+			      FetchLandmarks();
+			  } else if(str.match('Calibrating') != null)
+			  {
+			      setTimeout(CheckGeoCalibrationDone, 5000);
+			  } else {
+			      alert("ERROR: " + str);
+			  }
+			
+		      }
+		  });
+	 },
+	 "json");
+	     
+    
+    
+}
+
+
+function GPMStatusStr(val) 
+{
+    switch(val) {
+    case '0':
+	return 'GPM Not Enabled';
+    case '1':
+	return "GPM Uninitialized";
+    case '2':
+	return "GPM Ready";
+    case '3':
+	return "GPM Calibrating";
+    case '4':
+	return "GPM Error";
+    case '5':
+	return "GPM Calibration Failed";
+    default:
+	return "Unknown";
+    }
+}

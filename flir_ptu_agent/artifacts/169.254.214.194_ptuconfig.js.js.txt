@@ -1,0 +1,582 @@
+
+var resetTimeout = 10000;
+
+$(document).ready(function() {
+    clientSideInclude('topmenu', 'header.html');
+    clientSideInclude('footer', 'footer.html');
+    CommonAjaxSetup();
+
+    $(".powermode").click(function() 
+			  {
+			      var cmd;
+			      var arg;
+			      switch($(this).attr('name'))
+			      {
+			      case 'panmovepower':
+				  {
+				      cmd='PM';
+				      break;
+				  }
+			      case 'tiltmovepower':
+				  {
+				      cmd='TM';
+				      break;
+				  }
+			      case 'panholdpower':
+				  {
+				      cmd='PH';
+				      break;
+				  }
+			      case 'tiltholdpower':
+				  {
+				      cmd='TH';
+				      break;
+				  }
+				  
+			      }
+
+			      switch($(this).val())
+			      {
+			      case 'off':
+				  {
+				      arg='O';
+				      break;
+				  }
+			      case 'low':
+				  {
+				      arg='L';
+				      break;
+				  }
+			      case 'reg':
+				  {
+				      arg='R';
+				      break;
+				  }
+			      case 'high':
+				  {
+				      arg='H';
+				      break;
+				  }
+
+			      }
+			      //alert("send: " + cmd + "=" + arg);
+			      PTCmd(cmd + "=" + arg);
+			  });
+
+    $(".stepmode").click( function()
+			  {
+			      
+			      var cmd;
+			      var arg;
+			      var post = '';
+			      
+			      if(confirm("Changing step mode also commands a reset.  Your unit will move.  OK to proceed, Cancel otherwise"))
+			      {
+				  
+				  switch($(this).attr('name'))
+				  {
+				  case 'panstepmode':
+				      {
+					  cmd='WP';
+					  break;
+				      }
+				  case 'tiltstepmode':
+				      {
+					  cmd='WT';
+					  break;
+				      }						   
+				  }
+				  
+				  arg = $(this).val();
+				  
+				  post = "H&" + cmd + "=" + arg + "&R";
+				  PTCmd(post, 
+					function (data) {
+					    GenericJson(data);
+					    UpdateData('UpdateData()');
+					});
+			      }
+			      else {
+				  UpdateData();
+			      }
+			      
+			      
+			  });
+
+    $(".limitmode").click( function()
+			   {
+			       
+			       var cmd;
+			       var arg;
+			       var post = '';
+			       
+			       
+			       
+			       arg = $(this).val();
+			       
+			       switch(arg)
+			       {
+			       case 'F':
+				   $("#factorylimits").show();
+				   $("#userlimits").hide();
+				   cmd = 'L=F';
+				   break;
+			       case 'U':
+				   $("#factorylimits").hide();
+				   $("#userlimits").show();
+				   cmd = 'L=U';
+				   break;
+			       case 'D':
+				   $("#factorylimits").hide();
+				   $("#userlimits").hide();
+				   cmd = 'L=D';
+				   break;
+			       }
+                               PTCmd(cmd,
+				     '',
+				     '',
+				     function() {
+					 PTCmd("PXU&PNU&TXU&TNU",
+					       UpdateDataFromJson);
+				     });
+			   });
+
+    $(".continuousmode").click( function()
+				{
+				    
+				    var cmd;
+				    var arg;
+				    var post = '';
+				    
+				    
+				    
+				    arg = $(this).val();
+				    
+				    switch(arg)
+				    {
+				    case 'E':
+					cmd = 'PC=E';
+					break;
+				    case 'D':
+					cmd = 'PC=D';
+					break;
+				    }
+				    if(confirm("Changing continuous mode also commands a reset.  Your unit will move.  OK to proceed, Cancel otherwise"))
+				    { 
+					cmd+='&R';
+                                        PTCmd(cmd);
+				    }
+				    UpdateData();
+				});
+    $(".controltype").click( function()
+			     {
+				 
+				 var cmd;
+				 var arg;
+				 var post = '';
+				 
+				 cmd = $(this).val();
+				 
+				 $.post("/API/PTCmd", 
+					cmd,
+					GenericJson,
+					"json");
+				 
+				 UpdateData();
+				 
+			     });
+
+    $(".pelcod").click(
+        function(){ PTCmd("QP=" + $(this).val()); }
+    );
+
+    $(".configdata").blur( function()
+			   {
+			       sendDataField($(this));
+			   });
+
+    $(document).keydown(function(event)
+			{
+			    var KeyPressed = event.keyCode;
+
+			    if(KeyPressed == 13) //Enter
+			    {
+				if($("input:focus").length)
+				{
+				    //alert($("input:focus").attr('name'));
+				    sendDataField($("input:focus"));
+				}
+
+			    }
+
+			});
+    
+
+    $("#hostbaud").click( function() {
+	PTCmd("ATHB=" + $("#hostbaud").val());    
+    });
+
+
+    $("#SendResetFactory").click(
+        function(){
+            if(confirm("Commanding Factory Reset also commands "
+                       + "a reset.  Your unit will move.  OK to "
+                       + "proceed, Cancel otherwise")){
+
+		showLoading();
+		PTCmd("DF",
+                      // Wait for network to cycle before reset
+		      '',
+		      function(jqXHR, textStatus, errorThrown) { //error
+			  if(textStatus != "timeout") {
+			      alert('Default Factory Failed');
+			      hideLoading();
+			  }
+		      },
+                      setTimeout("CBWhenResponding('postResetRestore()')",2000) //success
+                     );
+            }
+        });
+
+    $("#SendRestoreDefault").click(
+        function(){
+            if(confirm("Commanding Default Restore also commands "
+                       + "a reset.  Your unit will move.  OK to "
+                       + "proceed, Cancel otherwise")){
+			showLoading();
+		PTCmd("DR",
+                      // wait for network to cycle before reset
+		      '',
+		      function(jqXHR, textStatus, errorThrown) { //error
+			  if(textStatus != "timeout") {
+			      alert('Default Restore Failed');
+			      hideLoading();
+			  }
+		      },
+                      setTimeout("CBWhenResponding('postResetRestore()')",2000) //success		  
+		);	
+           }
+	});
+
+    $("#SendSaveDefault").click(
+        function(){
+	    showLoading();
+            PTCmd("DS",
+		  '', //success 
+		  function() {alert('Save Failed');}, //error
+		  function(){hideLoading();});
+        });
+
+    $("#RefreshData").click(function() 
+			    {
+				UpdateData();
+			    });
+    
+    $("#resetaxes").click(
+        function(){
+	    showLoading();
+            PTCmdLong("R",
+		  '',
+		  function() {
+		  alert('Reset Failed');
+		  }, '', 75000 );
+	    CBWhenResponding("UpdateData(); hideLoading();");
+        });
+
+    $("#ReprExpand").toggle( function() {
+	
+	$("#ReprControls").show();
+	$("#ReprExpandImg").attr("src", "graphics/dexarrow11.png");
+    },
+			     function() {
+				 
+				 $("#ReprControls").hide();
+				 $("#ReprExpandImg").attr("src", "graphics/dblexarrow11.png");
+			     });
+
+    $("#factorylimits").hide();
+    $("#userlimits").hide();
+
+    UpdateData();
+
+    
+});
+
+function postResetRestore()
+{
+    PTCmd("R",
+	  '', //success
+	  '', //error
+	  function () { //complete
+	      CBWhenResponding("UpdateData(); hideLoading();");
+	  });
+}
+
+function sendDataField(field)
+{
+    PTCmd(field.attr('name') + "=" + field.val(),
+	  function() {
+	      field.removeClass("configdata_red");
+	      UpdateData();
+	  },
+	  function() {
+	      field.addClass("configdata_red");
+	  }
+	 );
+}
+
+
+function UpdateData(){
+    /* split into multiple requests to keep JSON return size reasonable */
+    PTCmd("V&VM&VS&PR&TR&PS&TS&PA&TA&PB&TB&PU&PL&TU&TL&PM&TM&PH&TH&WP&WT&L",
+          UpdateDataFromJson);
+    PTCmd("PXU&TXU&PNU&TNU&PXF&PNF&TXF&TNF&PC&QP&QA&ATHB&CT",
+          UpdateDataFromJson);
+}
+
+function UpdateConfigData(field, val)
+{
+    field.removeClass("configdata_red");
+    field.val(val);
+}
+
+function UpdateDataFromJson(data)
+{
+    $.each(data, function(key, val) {
+	
+	switch(key)
+	{
+	case 'V':
+	    $("#firmware").html(val);
+	    break;
+	case 'VM':
+	    $("#model").html(val);
+	    if(val == 'D46')
+		resetTimeout = 75000;
+	    else if(val == 'D47')
+		resetTimeout = 75000;
+	    else if(val == 'PTU-5' || val == 'PTU5' || val == "D20"){
+		$("#WTFlabel").hide();
+	        $("#WPFlabel").hide();
+	    }
+	    else
+		resetTimeout = 10000;
+	    break;
+	case 'VS':
+	    $("#serial").html(val);
+	    break;
+	case 'PR':
+	    $("#panresolution").html(val);
+	    break;
+	case 'TR':
+	    $("#tiltresolution").html(val);
+	    break;
+	case 'PS':
+	    UpdateConfigData($("#panspeed"),val);
+	    break;
+	case 'TS':
+	    UpdateConfigData($("#tiltspeed"),val);
+	    break;
+	case 'PA':
+	    UpdateConfigData($("#panaccel"),val);
+	    break;
+	case 'TA':
+	    UpdateConfigData($("#tiltaccel"),val);
+	    break;
+	case 'PB':
+	    UpdateConfigData($("#panbasespeed"),val);
+	    break;
+	case 'TB':
+	    UpdateConfigData($("#tiltbasespeed"),val);
+	    break;
+	case 'PU':
+	    UpdateConfigData($("#panupperspeed"),val);
+	    break;
+	case 'PL':
+	    UpdateConfigData($("#panlowerspeed"),val);
+	    break;
+	case 'TU':
+	    UpdateConfigData($("#tiltupperspeed"),val);
+	    break;
+	case 'TL':
+	    UpdateConfigData($("#tiltlowerspeed"),val);
+	    break;
+	    
+	case 'PM':
+	    $("#PML").attr('checked', false);
+	    $("#PMR").attr('checked', false);
+	    $("#PMH").attr('checked', false);
+	    
+	    if(val == 'L')
+		$("#PML").attr('checked', true);
+	    else if(val == 'R')
+		$("#PMR").attr('checked', true);
+	    else if(val == 'H')
+		$("#PMH").attr('checked', true);
+	    break;
+	case 'TM':
+	    $("#TML").attr('checked', false);
+	    $("#TMR").attr('checked', false);
+	    $("#TMH").attr('checked', false);
+	    
+	    if(val == 'L')
+		$("#TML").attr('checked', true);
+	    else if(val == 'R')
+		$("#TMR").attr('checked', true);
+	    else if(val == 'H')
+		$("#TMH").attr('checked', true);
+	    break;
+	case 'PH':
+	    $("#PHO").attr('checked', false);
+	    $("#PHL").attr('checked', false);
+	    $("#PHR").attr('checked', false);
+	    
+	    if(val == 'O')
+		$("#PHO").attr('checked', true);
+	    else if(val == 'L')
+		$("#PHL").attr('checked', true);
+	    else if(val == 'R')
+		$("#PHR").attr('checked', true);
+	    break;
+	case 'TH':
+	    $("#THO").attr('checked', false);
+	    $("#THL").attr('checked', false);
+	    $("#THR").attr('checked', false);
+	    
+	    if(val == 'O')
+		$("#THO").attr('checked', true);
+	    else if(val == 'L')
+		$("#THL").attr('checked', true);
+	    else if(val == 'R')
+		$("#THR").attr('checked', true);
+	    break;
+	case 'WP':
+	    $("#WPF").attr('checked', false);
+	    $("#WPH").attr('checked', false);
+	    $("#WPQ").attr('checked', false);
+	    $("#WPE").attr('checked', false);
+	    $("#WPA").attr('checked', false);
+	    
+	    if(val == 'F')
+		$("#WPF").attr('checked', true);
+	    else if(val == 'H')
+		$("#WPH").attr('checked', true);
+	    else if(val == 'Q')
+		$("#WPQ").attr('checked', true);
+	    else if(val == 'E')
+		$("#WPE").attr('checked', true);
+	    else if(val == 'A')
+		$("#WPA").attr('checked', true);
+	    break;
+	case 'WT':
+	    $("#WTF").attr('checked', false);
+	    $("#WTH").attr('checked', false);
+	    $("#WTQ").attr('checked', false);
+	    $("#WTE").attr('checked', false);
+	    $("#WTA").attr('checked', false);
+	    
+	    if(val == 'F')
+		$("#WTF").attr('checked', true);
+	    else if(val == 'H')
+		$("#WTH").attr('checked', true);
+	    else if(val == 'Q')
+		$("#WTQ").attr('checked', true);
+	    else if(val == 'E')
+		$("#WTE").attr('checked', true);
+	    else if(val == 'A')
+		$("#WTA").attr('checked', true);
+	    break;
+	case 'L':
+	    $("#LE").attr('checked', false);
+	    $("#LU").attr('checked', false);
+	    $("#LD").attr('checked', false);
+	    
+	    if(val == 'F')
+	    {
+		$("#LE").attr('checked', true);
+		$("#LE").click();
+	    }
+	    else if(val == 'U')
+	    {
+		$("#LU").attr('checked', true);
+		$("#LU").click();
+	    }
+	    else if(val == 'D')
+	    {
+		$("#LD").attr('checked', true);
+		$("#LD").click();
+	    }
+	    break;
+	case 'PXU':
+	    $("#PXU").val(val);
+	    break;
+	case 'PNU':
+	    $("#PNU").val(val);
+	    break;
+	case 'TXU':
+	    $("#TXU").val(val);
+	    break;
+	case 'TNU':
+	    $("#TNU").val(val);
+	    break;
+	case 'PXF':
+	    $("#PXF").html(val);
+	    break;
+	case 'PNF':
+	    $("#PNF").html(val);
+	    break;
+	case 'TXF':
+	    $("#TXF").html(val);
+	    break;
+	case 'TNF':
+	    $("#TNF").html(val);
+	    break;
+	case 'PC':
+	    if(val=='E')
+	    {
+		$("#PCE").attr('checked', true);
+	    }
+	    if(val=='D')
+	    {
+		$("#PCD").attr('checked', true);
+	    }
+	    break;
+	case 'CT':
+	    if(val=='0')
+	    {
+		$("#COL").attr('checked', true);
+	    }
+	    if(val=='1')
+	    {
+		$("#CEC").attr('checked', true);
+	    }
+	    if(val=='2')
+	    {
+		$("#CED").attr('checked', true);
+	    }
+	    break;
+        case 'QP':
+            switch(val){
+            case 'E':
+                $("#QPE").attr('checked', true);
+                break;
+            case 'D':
+                $("#QPD").attr('checked', true);
+                break;
+            }
+            break;
+
+        case 'QA':
+            $("#pelcoaddr").val(val);
+            break;
+
+        case 'ATHB':
+            $("#hostbaud").val(val);
+            break;
+
+        default:
+	    break;
+	}
+    });
+}
+

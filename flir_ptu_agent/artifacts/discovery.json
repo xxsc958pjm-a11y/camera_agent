@@ -1,0 +1,999 @@
+{
+  "base_url": "http://169.254.214.194",
+  "fetched_at": "2026-04-20T18:19:40.067007+00:00",
+  "page_title": ":: Teledyne FLIR Commercial Systems, Inc. ::",
+  "root_status_code": 200,
+  "fetched_page_urls": [
+    "http://169.254.214.194/",
+    "http://169.254.214.194/control.html",
+    "http://169.254.214.194/footer.html",
+    "http://169.254.214.194/gpmconfig.html",
+    "http://169.254.214.194/header.html",
+    "http://169.254.214.194/hordivider.html",
+    "http://169.254.214.194/index.html",
+    "http://169.254.214.194/ioconfig.html",
+    "http://169.254.214.194/ismconfig.html",
+    "http://169.254.214.194/ptuconfig.html"
+  ],
+  "links": [
+    "http://169.254.214.194/control.html",
+    "http://169.254.214.194/fmcs.css",
+    "http://169.254.214.194/graphics/favicon.ico",
+    "http://169.254.214.194/index.html",
+    "http://169.254.214.194/ptuconfig.html",
+    "http://www.flir.com/mcs"
+  ],
+  "forms": [
+    {
+      "action": "http://169.254.214.194/",
+      "method": "GET",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "NN",
+          "type": "text",
+          "value": "Unknown"
+        },
+        {
+          "tag": "input",
+          "name": "NA",
+          "type": "text",
+          "value": "Unknown"
+        },
+        {
+          "tag": "input",
+          "name": "NM",
+          "type": "radio",
+          "value": "D"
+        },
+        {
+          "tag": "input",
+          "name": "NM",
+          "type": "radio",
+          "value": "S"
+        },
+        {
+          "tag": "input",
+          "name": "NI",
+          "type": "text",
+          "value": "0.0.0.0"
+        },
+        {
+          "tag": "input",
+          "name": "NS",
+          "type": "text",
+          "value": "0.0.0.0"
+        },
+        {
+          "tag": "input",
+          "name": "NG",
+          "type": "text",
+          "value": "0.0.0.0"
+        },
+        {
+          "tag": "input",
+          "name": "SendNetwork",
+          "type": "button",
+          "value": "Set"
+        },
+        {
+          "tag": "input",
+          "name": "ResetNetwork",
+          "type": "button",
+          "value": "Reset"
+        },
+        {
+          "tag": "input",
+          "name": "SaveNetwork",
+          "type": "button",
+          "value": "Save"
+        }
+      ]
+    },
+    {
+      "action": "http://169.254.214.194/",
+      "method": "GET",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "NN",
+          "type": "text",
+          "value": "Unknown"
+        },
+        {
+          "tag": "input",
+          "name": "NA",
+          "type": "text",
+          "value": "Unknown"
+        },
+        {
+          "tag": "input",
+          "name": "NM",
+          "type": "radio",
+          "value": "D"
+        },
+        {
+          "tag": "input",
+          "name": "NM",
+          "type": "radio",
+          "value": "S"
+        },
+        {
+          "tag": "input",
+          "name": "NI",
+          "type": "text",
+          "value": "0.0.0.0"
+        },
+        {
+          "tag": "input",
+          "name": "NS",
+          "type": "text",
+          "value": "0.0.0.0"
+        },
+        {
+          "tag": "input",
+          "name": "NG",
+          "type": "text",
+          "value": "0.0.0.0"
+        },
+        {
+          "tag": "input",
+          "name": "SendNetwork",
+          "type": "button",
+          "value": "Set"
+        },
+        {
+          "tag": "input",
+          "name": "ResetNetwork",
+          "type": "button",
+          "value": "Reset"
+        },
+        {
+          "tag": "input",
+          "name": "SaveNetwork",
+          "type": "button",
+          "value": "Save"
+        }
+      ]
+    },
+    {
+      "action": "http://169.254.214.194/",
+      "method": "GET",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "SCPKP",
+          "type": null,
+          "value": "Unknown"
+        },
+        {
+          "tag": "input",
+          "name": "SCTKP",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "SCPKA",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "SCTKA",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "SCPVD",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "SCTVD",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "SCPPD",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "SCTPD",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "SCPKS",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "SCTKS",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "apply",
+          "type": "button",
+          "value": "Apply"
+        }
+      ]
+    },
+    {
+      "action": "http://169.254.214.194/",
+      "method": "GET",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "PS",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "TS",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "PP",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "TP",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": null,
+          "type": "button",
+          "value": "Apply"
+        }
+      ]
+    },
+    {
+      "action": "http://169.254.214.194/",
+      "method": "GET",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "PA",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "TA",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "PB",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "TB",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "PU",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "TU",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "PL",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "TL",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "C=I&PS",
+          "type": "text",
+          "value": "0"
+        },
+        {
+          "tag": "input",
+          "name": "C=I&TS",
+          "type": "text",
+          "value": "0"
+        }
+      ]
+    },
+    {
+      "action": "http://169.254.214.194/",
+      "method": "GET",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "panmovepower",
+          "type": "radio",
+          "value": "low"
+        },
+        {
+          "tag": "input",
+          "name": "panmovepower",
+          "type": "radio",
+          "value": "reg"
+        },
+        {
+          "tag": "input",
+          "name": "panmovepower",
+          "type": "radio",
+          "value": "high"
+        },
+        {
+          "tag": "input",
+          "name": "tiltmovepower",
+          "type": "radio",
+          "value": "low"
+        },
+        {
+          "tag": "input",
+          "name": "tiltmovepower",
+          "type": "radio",
+          "value": "reg"
+        },
+        {
+          "tag": "input",
+          "name": "tiltmovepower",
+          "type": "radio",
+          "value": "high"
+        },
+        {
+          "tag": "input",
+          "name": "panholdpower",
+          "type": "radio",
+          "value": "off"
+        },
+        {
+          "tag": "input",
+          "name": "panholdpower",
+          "type": "radio",
+          "value": "low"
+        },
+        {
+          "tag": "input",
+          "name": "panholdpower",
+          "type": "radio",
+          "value": "reg"
+        },
+        {
+          "tag": "input",
+          "name": "tiltholdpower",
+          "type": "radio",
+          "value": "off"
+        },
+        {
+          "tag": "input",
+          "name": "tiltholdpower",
+          "type": "radio",
+          "value": "low"
+        },
+        {
+          "tag": "input",
+          "name": "tiltholdpower",
+          "type": "radio",
+          "value": "reg"
+        }
+      ]
+    },
+    {
+      "action": "http://169.254.214.194/reflash/",
+      "method": "POST",
+      "fields": [
+        {
+          "tag": "input",
+          "name": "file",
+          "type": "file",
+          "value": null
+        },
+        {
+          "tag": "input",
+          "name": null,
+          "type": "submit",
+          "value": "Reflash"
+        }
+      ]
+    }
+  ],
+  "scripts": [
+    "http://169.254.214.194/control.js",
+    "http://169.254.214.194/csi.js",
+    "http://169.254.214.194/fmcs.js",
+    "http://169.254.214.194/gpm.js",
+    "http://169.254.214.194/gpmconfig.js",
+    "http://169.254.214.194/index.js",
+    "http://169.254.214.194/ioconfig.js",
+    "http://169.254.214.194/ismconfig.js",
+    "http://169.254.214.194/jquery.js",
+    "http://169.254.214.194/jquery.timers-1.2.js",
+    "http://169.254.214.194/ptuconfig.js"
+  ],
+  "fetched_script_urls": [
+    "http://169.254.214.194/control.js",
+    "http://169.254.214.194/csi.js",
+    "http://169.254.214.194/fmcs.js",
+    "http://169.254.214.194/gpm.js",
+    "http://169.254.214.194/gpmconfig.js",
+    "http://169.254.214.194/index.js",
+    "http://169.254.214.194/ioconfig.js",
+    "http://169.254.214.194/ismconfig.js",
+    "http://169.254.214.194/jquery.js",
+    "http://169.254.214.194/jquery.timers-1.2.js",
+    "http://169.254.214.194/ptuconfig.js"
+  ],
+  "keyword_hits": {
+    "pan": [
+      "http://169.254.214.194/: <td colspan=\"3\">",
+      "http://169.254.214.194/: <span class=\"text\">Define network address of PTU</span>",
+      "http://169.254.214.194/: <td bgcolor=\"#ffffff\" colspan=\"3\">",
+      "http://169.254.214.194/: Pan Tilt Firmware Version:</div>",
+      "http://169.254.214.194/: <td colspan=\"2\">",
+      "http://169.254.214.194/footer.html: <td colspan=\"5\"><img src=\"graphics/ds_bot.gif\" alt=\"image\" width=\"777\" height=\"9\" border=\"0\"></td>",
+      "http://169.254.214.194/gpmconfig.html: <td colspan=\"3\">",
+      "http://169.254.214.194/gpmconfig.html: <span class=\"text\">Configure geo-pointing functions</span>",
+      "http://169.254.214.194/gpmconfig.html: <td bgcolor=\"#ffffff\" colspan=\"3\">",
+      "http://169.254.214.194/gpmconfig.html: <td class=\"bold\" colspan=\"5\">",
+      "http://169.254.214.194/gpmconfig.html: <td colspan=\"5\" align=\"center\">",
+      "http://169.254.214.194/gpmconfig.html: <td class=\"bold\" colspan=\"5\">",
+      "http://169.254.214.194/index.html: <td colspan=\"3\">",
+      "http://169.254.214.194/index.html: <span class=\"text\">Define network address of PTU</span>",
+      "http://169.254.214.194/index.html: <td bgcolor=\"#ffffff\" colspan=\"3\">",
+      "http://169.254.214.194/index.html: Pan Tilt Firmware Version:</div>",
+      "http://169.254.214.194/index.html: <td colspan=\"2\">",
+      "http://169.254.214.194/ioconfig.html: <td colspan=\"3\">",
+      "http://169.254.214.194/ioconfig.html: <span class=\"text\">Configure Expanded I/O Options</span>",
+      "http://169.254.214.194/ioconfig.html: <td bgcolor=\"#ffffff\" colspan=\"3\">",
+      "http://169.254.214.194/ioconfig.html: <td class=\"bold\" colspan=\"8\">",
+      "http://169.254.214.194/ismconfig.html: <td colspan=\"3\">",
+      "http://169.254.214.194/ismconfig.html: <span class=\"text\">Configure the PTU</span>",
+      "http://169.254.214.194/ismconfig.html: <td bgcolor=\"#ffffff\" colspan=\"3\">",
+      "http://169.254.214.194/ismconfig.html: Pan",
+      "http://169.254.214.194/ismconfig.html: Pan",
+      "http://169.254.214.194/ismconfig.html: Pan",
+      "http://169.254.214.194/ismconfig.html: Pan",
+      "http://169.254.214.194/ismconfig.html: Pan",
+      "http://169.254.214.194/ismconfig.html: <td colspan=\"5\" align=\"center\">",
+      "http://169.254.214.194/ismconfig.html: <td class=\"data\" colspan=\"3\">",
+      "http://169.254.214.194/ismconfig.html: <td rowspan=\"1\" width=\"20%\">",
+      "http://169.254.214.194/ismconfig.html: <td rowspan=\"1\" align=\"right\" width=\"20%\">",
+      "http://169.254.214.194/ismconfig.html: <td class=\"data\" colspan=\"3\">",
+      "http://169.254.214.194/ismconfig.html: <td rowspan=\"2\" width=\"20%\" valign=\"top\">",
+      "http://169.254.214.194/ismconfig.html: <td rowspan=\"2\" align=\"right\" width=\"20%\" valign=\"top\">",
+      "http://169.254.214.194/ismconfig.html: <td rowspan=\"2\" width=\"20%\" valign=\"top\">",
+      "http://169.254.214.194/ismconfig.html: <td rowspan=\"2\" align=\"right\" width=\"20%\" valign=\"top\">",
+      "http://169.254.214.194/ismconfig.html: <td rowspan=\"2\" width=\"20%\" valign=\"top\">",
+      "http://169.254.214.194/ismconfig.html: <td rowspan=\"2\" align=\"right\" width=\"20%\" valign=\"top\">",
+      "http://169.254.214.194/control.html: <td colspan=\"3\">",
+      "http://169.254.214.194/control.html: <span class=\"text\">Control the PTU</span>",
+      "http://169.254.214.194/control.html: <td bgcolor=\"#ffffff\" colspan=\"3\">",
+      "http://169.254.214.194/control.html: <td rowspan=\"3\" colspan=\"3\" valign=\"top\">",
+      "http://169.254.214.194/control.html: <td class=\"ptu-control-label\" style=\"text-align: center\" colspan=\"3\">",
+      "http://169.254.214.194/control.html: <td rowspan=\"3\" colspan=\"3\">",
+      "http://169.254.214.194/control.html: <td colspan=\"3\">",
+      "http://169.254.214.194/control.html: <td rowspan=\"2\" width=\"6\" height=\"36\"></td>",
+      "http://169.254.214.194/control.html: <td rowspan=\"2\">",
+      "http://169.254.214.194/control.html: <td width=\"7\" height=\"36\" rowspan=\"2\"></td>"
+    ],
+    "ptu": [
+      "http://169.254.214.194/: <span class=\"text\">Define network address of PTU</span>",
+      "http://169.254.214.194/gpmconfig.html: <b>1)</b> Enter the GPS location and pitch offset of the PTU<BR>",
+      "http://169.254.214.194/gpmconfig.html: <b>2)</b> Set PTU Pose by either: <BR>",
+      "http://169.254.214.194/gpmconfig.html: PTU GPS Location and Camera Offset",
+      "http://169.254.214.194/gpmconfig.html: <!-- PTU LLA position -->",
+      "http://169.254.214.194/gpmconfig.html: <!-- PTU RPY position -->",
+      "http://169.254.214.194/gpmconfig.html: &nbsp;&nbsp;&nbsp;PTU Roll",
+      "http://169.254.214.194/header.html: <td><a href=\"ptuconfig.html\" class=\"header-nav-link\">PTU Config</a></td>",
+      "http://169.254.214.194/header.html: <td><a href=\"control.html\" class=\"header-nav-link\">PTU Control</a></td>",
+      "http://169.254.214.194/index.html: <span class=\"text\">Define network address of PTU</span>",
+      "http://169.254.214.194/ioconfig.html: PTU I/O Configuration Staging",
+      "http://169.254.214.194/ismconfig.html: <span class=\"text\">Configure the PTU</span>",
+      "http://169.254.214.194/ismconfig.html: &nbsp;&nbsp;&nbsp;*Note: PTU must be restarted to take effect",
+      "http://169.254.214.194/control.html: &nbsp;&nbsp;PTU CONTROL",
+      "http://169.254.214.194/control.html: <span class=\"text\">Control the PTU</span>",
+      "http://169.254.214.194/control.html: <table id=\"ptu-control\" width=\"538\" border=\"0\">",
+      "http://169.254.214.194/control.html: PTU Control",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"27\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"60\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"30\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"6\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"46\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"7\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"25\" height=\"8\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"61\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"38\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"10\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <td class=\"ptu-control-label\" style=\"text-align: center\" colspan=\"3\">",
+      "http://169.254.214.194/control.html: <table align=\"right\" title=\"Speed: Hold down mouse button for continuous motion.  Position: Click arrows to move PTU in that direction\">",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"20\" border=\"0\">",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"57\" border=\"0\">",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"29\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <td class=\"ptu-control-label\" style=\"text-align: right\" rowspan=\"3\">",
+      "http://169.254.214.194/control.html: <div class=\"ptu-control-label\"",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"7\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"45\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"6\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"30\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"57\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <td class=\"ptu-control-label\" style=\"text-align: center\" colspan=\"3\">",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"19\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <input id=\"coordptu\" type=\"radio\" name=\"coordtype\" value=\"P\" class=\"coordtype\" checked />",
+      "http://169.254.214.194/control.html: PTU",
+      "http://169.254.214.194/control.html: <tr title=\"Expand to command PTU to a specified position\" id=\"PosExpand\">",
+      "http://169.254.214.194/ptuconfig.html: <script type=\"text/javascript\" src=\"ptuconfig.js\"></script>",
+      "http://169.254.214.194/ptuconfig.html: &nbsp;&nbsp;PTU CONFIG",
+      "http://169.254.214.194/ptuconfig.html: <span class=\"text\">Configure the PTU</span>",
+      "http://169.254.214.194/ptuconfig.html: PTU Configuration",
+      "http://169.254.214.194/fmcs.js: /* tries 100 times at timeout 250ms for the PTU to be responding */"
+    ],
+    "tilt": [
+      "http://169.254.214.194/: Pan Tilt Firmware Version:</div>",
+      "http://169.254.214.194/index.html: Pan Tilt Firmware Version:</div>",
+      "http://169.254.214.194/ismconfig.html: Tilt",
+      "http://169.254.214.194/ismconfig.html: Tilt",
+      "http://169.254.214.194/ismconfig.html: Tilt",
+      "http://169.254.214.194/ismconfig.html: Tilt",
+      "http://169.254.214.194/ismconfig.html: Tilt",
+      "http://169.254.214.194/control.html: Tilt Up",
+      "http://169.254.214.194/control.html: Tilt Down",
+      "http://169.254.214.194/control.html: Tilt Position",
+      "http://169.254.214.194/control.html: <div id=\"tiltpos\" class=\"boldblue\">",
+      "http://169.254.214.194/control.html: Tilt Speed",
+      "http://169.254.214.194/control.html: <div id=\"tiltspeed\" class=\"boldblue\">",
+      "http://169.254.214.194/control.html: Tilt",
+      "http://169.254.214.194/control.html: <input name=\"TS\" type=\"text\" class=\"data\" id=\"TiltSpeedInput\" value=\"0\" size=\"8\" />",
+      "http://169.254.214.194/control.html: Tilt",
+      "http://169.254.214.194/control.html: <input name=\"TP\" type=\"text\" class=\"data\" id=\"TiltPosInput\" value=\"0\" size=\"8\"/>",
+      "http://169.254.214.194/ptuconfig.html: &nbsp;&nbsp;&nbsp;Tilt Resolution&nbsp;",
+      "http://169.254.214.194/ptuconfig.html: <div id=\"tiltresolution\" >",
+      "http://169.254.214.194/ptuconfig.html: Tilt",
+      "http://169.254.214.194/ptuconfig.html: <input id=\"tiltaccel\" name=\"TA\" type=\"text\" value=\"0\" size=\"8\" class=\"configdata\"/>",
+      "http://169.254.214.194/ptuconfig.html: Tilt",
+      "http://169.254.214.194/ptuconfig.html: <input id=\"tiltbasespeed\" name=\"TB\" type=\"text\" value=\"0\" size=\"8\" class=\"configdata\"/>",
+      "http://169.254.214.194/ptuconfig.html: Tilt",
+      "http://169.254.214.194/ptuconfig.html: <input id=\"tiltupperspeed\" name=\"TU\" type=\"text\" value=\"0\" size=\"8\" class=\"configdata\"/>",
+      "http://169.254.214.194/ptuconfig.html: Tilt",
+      "http://169.254.214.194/ptuconfig.html: <input id=\"tiltlowerspeed\" name=\"TL\" type=\"text\" value=\"0\" size=\"8\" class=\"configdata\"/>",
+      "http://169.254.214.194/ptuconfig.html: Tilt",
+      "http://169.254.214.194/ptuconfig.html: <input id=\"tiltspeed\" name=\"C=I&TS\" type=\"text\" value=\"0\" size=\"8\" class=\"configdata\"/>",
+      "http://169.254.214.194/ptuconfig.html: &nbsp;&nbsp;&nbsp;Tilt Move Power",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"tiltmovepower\" value=\"low\" class=\"powermode\" id=\"TML\"/>",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"tiltmovepower\" value=\"reg\" class=\"powermode\" id=\"TMR\"/>",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"tiltmovepower\" value=\"high\" class=\"powermode\" id=\"TMH\"/>",
+      "http://169.254.214.194/ptuconfig.html: &nbsp;&nbsp;&nbsp;Tilt Hold Power",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"tiltholdpower\" value=\"off\" class=\"powermode\" id=\"THO\"/>",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"tiltholdpower\" value=\"low\" class=\"powermode\" id=\"THL\"/>",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"tiltholdpower\" value=\"reg\" class=\"powermode\" id=\"THR\"/>",
+      "http://169.254.214.194/ptuconfig.html: &nbsp;&nbsp;&nbsp;Tilt Step Mode",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"tiltstepmode\" value=\"F\" class=\"stepmode\" id=\"WTF\"/>",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"tiltstepmode\" value=\"H\" class=\"stepmode\" id=\"WTH\"/>",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"tiltstepmode\" value=\"Q\" class=\"stepmode\" id=\"WTQ\"/>",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"tiltstepmode\" value=\"E\" class=\"stepmode\" id=\"WTE\"/>",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"tiltstepmode\" value=\"A\" class=\"stepmode\" id=\"WTA\"/>",
+      "http://169.254.214.194/ptuconfig.html: Tilt",
+      "http://169.254.214.194/ptuconfig.html: Tilt",
+      "http://169.254.214.194/ptuconfig.html: Tilt",
+      "http://169.254.214.194/ptuconfig.html: Tilt",
+      "http://169.254.214.194/gpm.js: '</td><td id=\"TILT\" class=\"data blue\" width=\"40px\">' + splits[i * iNumLandmarkFields + 5] +",
+      "http://169.254.214.194/control.js: var fTiltResolution = 1;",
+      "http://169.254.214.194/control.js: var iLastTiltSpeed;"
+    ],
+    "control": [
+      "http://169.254.214.194/header.html: <td><a href=\"control.html\" class=\"header-nav-link\">PTU Control</a></td>",
+      "http://169.254.214.194/ismconfig.html: <form name=\"ControlForm\" id=\"ControlForm\">",
+      "http://169.254.214.194/ismconfig.html: Control Parameters",
+      "http://169.254.214.194/ismconfig.html: <input id=\"SCPKP\" name=\"SCPKP\" value=\"Unknown\" size=\"8\" class=\"controldata\"/>",
+      "http://169.254.214.194/ismconfig.html: <input id=\"SCTKP\" name=\"SCTKP\" type=\"text\" value=\"0\" size=\"8\" class=\"controldata\"/>",
+      "http://169.254.214.194/ismconfig.html: <input id=\"SCPKA\" name=\"SCPKA\" type=\"text\" value=\"0\" size=\"8\" class=\"controldata\"/>",
+      "http://169.254.214.194/ismconfig.html: <input id=\"SCTKA\" name=\"SCTKA\" type=\"text\" value=\"0\" size=\"8\" class=\"controldata\"/>",
+      "http://169.254.214.194/ismconfig.html: <input id=\"SCPVD\" name=\"SCPVD\" type=\"text\" value=\"0\" size=\"8\" class=\"controldata\"/>",
+      "http://169.254.214.194/ismconfig.html: <input id=\"SCTVD\" name=\"SCTVD\" type=\"text\" value=\"0\" size=\"8\" class=\"controldata\"/>",
+      "http://169.254.214.194/ismconfig.html: <input id=\"SCPPD\" name=\"SCPPD\" type=\"text\" value=\"0\" size=\"8\" class=\"controldata\"/>",
+      "http://169.254.214.194/ismconfig.html: <input id=\"SCTPD\" name=\"SCTPD\" type=\"text\" value=\"0\" size=\"8\" class=\"controldata\"/>",
+      "http://169.254.214.194/ismconfig.html: <input id=\"SCPKS\" name=\"SCPKS\" type=\"text\" value=\"0\" size=\"8\" class=\"controldata\"/>",
+      "http://169.254.214.194/ismconfig.html: <input id=\"SCTKS\" name=\"SCTKS\" type=\"text\" value=\"0\" size=\"8\" class=\"controldata\"/>",
+      "http://169.254.214.194/ismconfig.html: <input id=\"SendControl\" type=\"button\" class=\"text\" name=\"apply\" value=\"Apply\">",
+      "http://169.254.214.194/control.html: <script type=\"text/javascript\" src=\"control.js\"></script>",
+      "http://169.254.214.194/control.html: &nbsp;&nbsp;PTU CONTROL",
+      "http://169.254.214.194/control.html: <span class=\"text\">Control the PTU</span>",
+      "http://169.254.214.194/control.html: <table id=\"ptu-control\" width=\"538\" border=\"0\">",
+      "http://169.254.214.194/control.html: PTU Control",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"27\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"60\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"30\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"6\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"46\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"7\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"25\" height=\"8\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"61\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"38\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"1\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"10\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <td class=\"ptu-control-label\" style=\"text-align: center\" colspan=\"3\">",
+      "http://169.254.214.194/control.html: Control",
+      "http://169.254.214.194/control.html: <input id=\"controlvel\" name=\"controltype\" type=\"radio\" class=\"controltype noselect\" value=\"speed\" checked />",
+      "http://169.254.214.194/control.html: <input id=\"controlpos\" name=\"controltype\" type=\"radio\" class=\"controltype noselect\" value=\"position\"  />",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"20\" border=\"0\">",
+      "http://169.254.214.194/control.html: <div id=\"upup\" class=\"controlbutton\"></div>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"57\" border=\"0\">",
+      "http://169.254.214.194/control.html: <div id=\"up\" class=\"controlbutton\"></div>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"29\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <td class=\"ptu-control-label\" style=\"text-align: right\" rowspan=\"3\">",
+      "http://169.254.214.194/control.html: <div id=\"leftleft\" class=\"controlbutton\"></div>",
+      "http://169.254.214.194/control.html: <div id=\"rightright\" class=\"controlbutton\">",
+      "http://169.254.214.194/control.html: <div class=\"ptu-control-label\"",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"7\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <div id=\"left\" class=\"controlbutton\"></div>",
+      "http://169.254.214.194/control.html: <div id=\"home\" class=\"controlbutton\"></div>",
+      "http://169.254.214.194/control.html: <div id=\"right\" class=\"controlbutton\"></div>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"45\" border=\"0\"></td>",
+      "http://169.254.214.194/control.html: <div id=\"down\" class=\"controlbutton\"></div>",
+      "http://169.254.214.194/control.html: <img src=\"graphics/ptucontrol/spacer.gif\" alt=\"\" name=\"undefined_3\" width=\"1\" height=\"6\" border=\"0\"></td>"
+    ],
+    "move": [
+      "http://169.254.214.194/control.html: <table align=\"right\" title=\"Speed: Hold down mouse button for continuous motion.  Position: Click arrows to move PTU in that direction\">",
+      "http://169.254.214.194/ptuconfig.html: <!-- hack in C=I so the unit won't move when we change the speed -->",
+      "http://169.254.214.194/ptuconfig.html: &nbsp;&nbsp;&nbsp;Pan Move Power",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"panmovepower\" value=\"low\" class=\"powermode\" id=\"PML\" />",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"panmovepower\" value=\"reg\" class=\"powermode\" id=\"PMR\"/>",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"panmovepower\" value=\"high\" class=\"powermode\" id=\"PMH\"/>",
+      "http://169.254.214.194/ptuconfig.html: &nbsp;&nbsp;&nbsp;Tilt Move Power",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"tiltmovepower\" value=\"low\" class=\"powermode\" id=\"TML\"/>",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"tiltmovepower\" value=\"reg\" class=\"powermode\" id=\"TMR\"/>",
+      "http://169.254.214.194/ptuconfig.html: <input type=\"radio\" name=\"tiltmovepower\" value=\"high\" class=\"powermode\" id=\"TMH\"/>",
+      "http://169.254.214.194/jquery.js: (function(A,w){function ma(){if(!c.isReady){try{s.documentElement.doScroll(\"left\")}catch(a){setTimeout(ma,1);return}c.ready()}}function Qa(a,b){b.src?c.ajax({url:b.src,async:false,dataType:\"script\"}):c.globalEval(b.text||b.textContent||b.in",
+      "http://169.254.214.194/jquery.js: a))();else c.error(\"Invalid JSON: \"+a)},noop:function(){},globalEval:function(a){if(a&&Va.test(a)){var b=s.getElementsByTagName(\"head\")[0]||s.documentElement,d=s.createElement(\"script\");d.type=\"text/javascript\";if(c.support.scriptEval)d.app",
+      "http://169.254.214.194/jquery.js: true;if(ya)c.inArray=function(a,b){return ya.call(b,a)};T=c(s);if(s.addEventListener)L=function(){s.removeEventListener(\"DOMContentLoaded\",L,false);c.ready()};else if(s.attachEvent)L=function(){if(s.readyState===\"complete\"){s.detachEvent(\"o",
+      "http://169.254.214.194/jquery.js: parentNode:d.removeChild(d.appendChild(s.createElement(\"div\"))).parentNode===null,deleteExpando:true,checkClone:false,scriptEval:false,noCloneEvent:true,boxModel:null};b.type=\"text/javascript\";try{b.appendChild(s.createTextNode(\"window.\"+f+",
+      "http://169.254.214.194/jquery.js: false;d.detachEvent(\"onclick\",k)});d.cloneNode(true).fireEvent(\"onclick\")}d=s.createElement(\"div\");d.innerHTML=\"<input type='radio' name='radiotest' checked='checked'/>\";a=s.createDocumentFragment();a.appendChild(d.firstChild);c.support.che",
+      "http://169.254.214.194/jquery.js: applet:true},data:function(a,b,d){if(!(a.nodeName&&c.noData[a.nodeName.toLowerCase()])){a=a==A?za:a;var f=a[G],e=c.cache;if(!f&&typeof b===\"string\"&&d===w)return null;f||(f=++Ya);if(typeof b===\"object\"){a[G]=f;e[f]=c.extend(true,{},b)}else ",
+      "http://169.254.214.194/jquery.js: else a.removeAttribute&&a.removeAttribute(c.expando);delete f[d]}}}});c.fn.extend({data:function(a,b){if(typeof a===\"undefined\"&&this.length)return c.data(this[0]);else if(typeof a===\"object\")return this.each(function(){c.data(this,a)});var",
+      "http://169.254.214.194/jquery.js: a,b)})},removeData:function(a){return this.each(function(){c.removeData(this,a)})}});c.extend({queue:function(a,b,d){if(a){b=(b||\"fx\")+\"queue\";var f=c.data(a,b);if(!d)return f||[];if(!f||c.isArray(d))f=c.data(a,b,c.makeArray(d));else f.push",
+      "http://169.254.214.194/jquery.js: cb=/^(a|area)$/i,Ba=/radio|checkbox/;c.fn.extend({attr:function(a,b){return X(this,a,b,true,c.attr)},removeAttr:function(a){return this.each(function(){c.attr(this,a,\"\");this.nodeType===1&&this.removeAttribute(a)})},addClass:function(a){if(",
+      "http://169.254.214.194/jquery.js: i=e.className,o=0,k=b.length;o<k;o++)if(j.indexOf(\" \"+b[o]+\" \")<0)i+=\" \"+b[o];e.className=c.trim(i)}else e.className=a}return this},removeClass:function(a){if(c.isFunction(a))return this.each(function(k){var n=c(this);n.removeClass(a.call(t",
+      "http://169.254.214.194/jquery.js: \" \");e.className=c.trim(j)}else e.className=\"\"}return this},toggleClass:function(a,b){var d=typeof a,f=typeof b===\"boolean\";if(c.isFunction(a))return this.each(function(e){var j=c(this);j.toggleClass(a.call(this,e,j.attr(\"class\"),b),b)});re",
+      "http://169.254.214.194/jquery.js: k=r.shift();j.namespace=r.slice(0).sort().join(\".\")}else{r=[];j.namespace=\"\"}j.type=k;j.guid=d.guid;var u=i[k],z=c.event.special[k]||{};if(!u){u=i[k]=[];if(!z.setup||z.setup.call(a,f,r,o)===false)if(a.addEventListener)a.addEventListener(k,o",
+      "http://169.254.214.194/jquery.js: C=z&&z.events;if(z&&C){if(b&&b.type){d=b.handler;b=b.type}if(!b||typeof b===\"string\"&&b.charAt(0)===\".\"){b=b||\"\";for(e in C)c.event.remove(a,e+b)}else{for(b=b.split(\" \");e=b[j++];){n=e;i=e.indexOf(\".\")<0;o=[];if(!i){o=e.split(\".\");e=o.shift",
+      "http://169.254.214.194/jquery.js: null)break}}if(r.length===0||f!=null&&r.length===1){if(!n.teardown||n.teardown.call(a,o)===false)Ca(a,e,z.handle);delete C[e]}}else for(var B=0;B<r.length;B++){u=r[B];if(i||k.test(u.namespace)){c.event.remove(a,n,u.handler,B);r.splice(B--,1",
+      "http://169.254.214.194/jquery.js: d&&d.scrollTop||0)-(b&&b.clientTop||d&&d.clientTop||0)}if(!a.which&&(a.charCode||a.charCode===0?a.charCode:a.keyCode))a.which=a.charCode||a.keyCode;if(!a.metaKey&&a.ctrlKey)a.metaKey=a.ctrlKey;if(!a.which&&a.button!==w)a.which=a.button&1?1:",
+      "http://169.254.214.194/jquery.js: \"events\").live||[],function(){if(d===this.origType.replace(O,\"\"))return b=false});b&&c.event.remove(this,a.origType,oa)}},beforeunload:{setup:function(a,b,d){if(this.setInterval)this.onbeforeunload=d;return false},teardown:function(a,b){if(",
+      "http://169.254.214.194/jquery.js: isImmediatePropagationStopped:Y};var Da=function(a){var b=a.relatedTarget;try{for(;b&&b!==this;)b=b.parentNode;if(b!==this){a.type=a.data;c.event.handle.apply(this,arguments)}}catch(d){}},Ea=function(a){a.type=a.data;c.event.handle.apply(th",
+      "http://169.254.214.194/jquery.js: {setup:function(){if(this.nodeName.toLowerCase()!==\"form\"){c.event.add(this,\"click.specialSubmit\",function(a){var b=a.target,d=b.type;if((d===\"submit\"||d===\"image\")&&c(b).closest(\"form\").length)return na(\"submit\",this,arguments)});c.event.a",
+      "http://169.254.214.194/jquery.js: \"_change_data\",Fa(a))}},setup:function(){if(this.type===\"file\")return false;for(var a in ea)c.event.add(this,a+\".specialChange\",ea[a]);return da.test(this.nodeName)},teardown:function(){c.event.remove(this,\".specialChange\");return da.test(t",
+      "http://169.254.214.194/jquery.js: d,true)},teardown:function(){this.removeEventListener(a,d,true)}}});c.each([\"bind\",\"one\"],function(a,b){c.fn[b]=function(d,f,e){if(typeof d===\"object\"){for(var j in d)this[b](j,f,d[j],e);return this}if(c.isFunction(f)){e=f;f=w}var i=b===\"on",
+      "http://169.254.214.194/jquery.js: !a.preventDefault)for(var d in a)this.unbind(d,a[d]);else{d=0;for(var f=this.length;d<f;d++)c.event.remove(this[d],a,b)}return this},delegate:function(a,b,d,f){return this.live(b,d,f,a)},undelegate:function(a,b,d){return arguments.length===",
+      "http://169.254.214.194/jquery.js: u=j?this:c(this.context);if(c.isFunction(f)){e=f;f=w}for(d=(d||\"\").split(\" \");(i=d[o++])!=null;){j=O.exec(i);k=\"\";if(j){k=j[0];i=i.replace(O,\"\")}if(i===\"hover\")d.push(\"mouseenter\"+k,\"mouseleave\"+k);else{n=i;if(i===\"focus\"||i===\"blur\"){d.pus",
+      "http://169.254.214.194/jquery.js: function(a,b){c.fn[b]=function(d){return d?this.bind(b,d):this.trigger(b)};if(c.attrFn)c.attrFn[b]=true});A.attachEvent&&!A.addEventListener&&A.attachEvent(\"onunload\",function(){for(var a in c.cache)if(c.cache[a].handle)try{c.event.remove(c",
+      "http://169.254.214.194/jquery.js: q.getAttributeNode(\"id\").nodeValue===m[1]?[q]:w:[]};n.filter.ID=function(m,q){var p=typeof m.getAttributeNode!==\"undefined\"&&m.getAttributeNode(\"id\");return m.nodeType===1&&p&&p.nodeValue===q}}l.removeChild(g);l=g=null})();(function(){var g",
+      "http://169.254.214.194/jquery.js: this.nextSibling)});else if(arguments.length){var a=this.pushStack(this,\"after\",arguments);a.push.apply(a,c(arguments[0]).toArray());return a}},remove:function(a,b){for(var d=0,f;(f=this[d])!=null;d++)if(!a||c.filter(a,[f]).length){if(!b&&f",
+      "http://169.254.214.194/jquery.js: this[0].parentNode){if(c.isFunction(a))return this.each(function(b){var d=c(this),f=d.html();d.replaceWith(a.call(this,b,f))});if(typeof a!==\"string\")a=c(a).detach();return this.each(function(){var b=this.nextSibling,d=this.parentNode;c(thi",
+      "http://169.254.214.194/jquery.js: \"\"])[1].toLowerCase(),k=F[o]||F._default,n=k[0],r=b.createElement(\"div\");for(r.innerHTML=k[1]+i+k[2];n--;)r=r.lastChild;if(!c.support.tbody){n=ib.test(i);o=o===\"table\"&&!n?r.firstChild&&r.firstChild.childNodes:k[1]===\"<table>\"&&!n?r.childNo",
+      "http://169.254.214.194/jquery.js: c.merge(e,i)}}if(d)for(j=0;e[j];j++)if(f&&c.nodeName(e[j],\"script\")&&(!e[j].type||e[j].type.toLowerCase()===\"text/javascript\"))f.push(e[j].parentNode?e[j].parentNode.removeChild(e[j]):e[j]);else{e[j].nodeType===1&&e.splice.apply(e,[j+1,0].c",
+      "http://169.254.214.194/jquery.js: c.event.remove(o,k):Ca(o,k,b.handle);if(j)delete o[c.expando];else o.removeAttribute&&o.removeAttribute(c.expando);delete f[d]}}});var kb=/z-?index|font-?weight|opacity|zoom|line-?height/i,Na=/alpha\\([^)]*\\)/,Oa=/opacity=([^)]*)/,ha=/float/",
+      "http://169.254.214.194/jquery.js: \"&\":\"?\")+(e.jsonp||\"callback\")+\"=?\");else if(!e.data||!N.test(e.data))e.data=(e.data?e.data+\"&\":\"\")+(e.jsonp||\"callback\")+\"=?\";e.dataType=\"json\"}if(e.dataType===\"json\"&&(e.data&&N.test(e.data)||N.test(e.url))){j=e.jsonpCallback||\"jsonp\"+sb+",
+      "http://169.254.214.194/jquery.js: false;C.onload=C.onreadystatechange=function(){if(!B&&(!this.readyState||this.readyState===\"loaded\"||this.readyState===\"complete\")){B=true;b();d();C.onload=C.onreadystatechange=null;z&&C.parentNode&&z.removeChild(C)}}}z.insertBefore(C,z.fir",
+      "http://169.254.214.194/jquery.js: this[a].style.display=d||\"\";if(c.css(this[a],\"display\")===\"none\"){d=this[a].nodeName;var f;if(la[d])f=la[d];else{var e=c(\"<\"+d+\" />\").appendTo(\"body\");f=e.css(\"display\");if(f===\"none\")f=\"block\";e.remove();la[d]=f}c.data(this[a],\"olddisplay\"",
+      "http://169.254.214.194/jquery.js: a.insertBefore(b,a.firstChild);d=b.firstChild;f=d.firstChild;e=d.nextSibling.firstChild.firstChild;this.doesNotAddBorder=f.offsetTop!==5;this.doesAddBorderForTableAndCells=e.offsetTop===5;f.style.position=\"fixed\";f.style.top=\"20px\";this.sup",
+      "http://169.254.214.194/fmcs.js: $(\"#errornotify\").remove();",
+      "http://169.254.214.194/fmcs.js: $(this).removeClass(\"hordivider\");",
+      "http://169.254.214.194/gpm.js: RemoveLandmarks();",
+      "http://169.254.214.194/gpm.js: function RemoveLandmarks()",
+      "http://169.254.214.194/gpm.js: $(\"tr[class ='landmark']\").remove();",
+      "http://169.254.214.194/jquery.timers-1.2.js: jQuery.timer.remove(this, label, fn);",
+      "http://169.254.214.194/jquery.timers-1.2.js: jQuery.timer.remove(element, label, fn);"
+    ],
+    "ajax": [
+      "http://169.254.214.194/jquery.js: (function(A,w){function ma(){if(!c.isReady){try{s.documentElement.doScroll(\"left\")}catch(a){setTimeout(ma,1);return}c.ready()}}function Qa(a,b){b.src?c.ajax({url:b.src,async:false,dataType:\"script\"}):c.globalEval(b.text||b.textContent||b.in",
+      "http://169.254.214.194/jquery.js: \"string\")return zb.call(this,a);else if(!this.length)return this;var f=a.indexOf(\" \");if(f>=0){var e=a.slice(f,a.length);a=a.slice(0,f)}f=\"GET\";if(b)if(c.isFunction(b)){d=b;b=null}else if(typeof b===\"object\"){b=c.param(b,c.ajaxSettings.trad",
+      "http://169.254.214.194/jquery.js: serialize:function(){return c.param(this.serializeArray())},serializeArray:function(){return this.map(function(){return this.elements?c.makeArray(this.elements):this}).filter(function(){return this.name&&!this.disabled&&(this.checked||ub.te",
+      "http://169.254.214.194/jquery.js: function(a,b){c.fn[b]=function(d){return this.bind(b,d)}});c.extend({get:function(a,b,d,f){if(c.isFunction(b)){f=f||d;d=b;b=null}return c.ajax({type:\"GET\",url:a,data:b,success:d,dataType:f})},getScript:function(a,b){return c.get(a,null,b,\"s",
+      "http://169.254.214.194/jquery.js: global:true,type:\"GET\",contentType:\"application/x-www-form-urlencoded\",processData:true,async:true,xhr:A.XMLHttpRequest&&(A.location.protocol!==\"file:\"||!A.ActiveXObject)?function(){return new A.XMLHttpRequest}:function(){try{return new A.A",
+      "http://169.254.214.194/jquery.js: e.success.call(k,o,i,x);e.global&&f(\"ajaxSuccess\",[x,e])}function d(){e.complete&&e.complete.call(k,x,i);e.global&&f(\"ajaxComplete\",[x,e]);e.global&&!--c.active&&c.event.trigger(\"ajaxStop\")}function f(q,p){(e.context?c(e.context):c.event).t",
+      "http://169.254.214.194/jquery.js: false&&n===\"GET\"){var r=J(),u=e.url.replace(wb,\"$1_=\"+r+\"$2\");e.url=u+(u===e.url?(ka.test(e.url)?\"&\":\"?\")+\"_=\"+r:\"\")}if(e.data&&n===\"GET\")e.url+=(ka.test(e.url)?\"&\":\"?\")+e.data;e.global&&!c.active++&&c.event.trigger(\"ajaxStart\");r=(r=xb.exe",
+      "http://169.254.214.194/jquery.js: c.lastModified[e.url]);c.etag[e.url]&&x.setRequestHeader(\"If-None-Match\",c.etag[e.url])}r||x.setRequestHeader(\"X-Requested-With\",\"XMLHttpRequest\");x.setRequestHeader(\"Accept\",e.dataType&&e.accepts[e.dataType]?e.accepts[e.dataType]+\", */*\":e",
+      "http://169.254.214.194/jquery.js: g(\"abort\")}}catch(l){}e.async&&e.timeout>0&&setTimeout(function(){x&&!E&&g(\"timeout\")},e.timeout);try{x.send(n===\"POST\"||n===\"PUT\"||n===\"DELETE\"?e.data:null)}catch(m){c.handleError(e,x,null,m);d()}e.async||g();return x}},handleError:functio",
+      "http://169.254.214.194/jquery.js: \"json\"||!b&&f.indexOf(\"json\")>=0)a=c.parseJSON(a);else if(b===\"script\"||!b&&f.indexOf(\"javascript\")>=0)c.globalEval(a);return a},param:function(a,b){function d(i,o){if(c.isArray(o))c.each(o,function(k,n){b||/\\[\\]$/.test(i)?f(i,n):d(i+\"[\"+(t",
+      "http://169.254.214.194/fmcs.js: // cb (optional): AJAX callback on command success.",
+      "http://169.254.214.194/fmcs.js: // err (optional): AJAX callback on error",
+      "http://169.254.214.194/fmcs.js: // com (optional): AJAX callback on complete",
+      "http://169.254.214.194/fmcs.js: $.ajax({data: cmd,",
+      "http://169.254.214.194/fmcs.js: $.ajax({data: cmd,",
+      "http://169.254.214.194/fmcs.js: // cb (optional): AJAX callback on command completion. defaults to GenericJson",
+      "http://169.254.214.194/fmcs.js: $.ajax({url:\"/API/PTCmd\",",
+      "http://169.254.214.194/fmcs.js: function CommonAjaxSetup()",
+      "http://169.254.214.194/fmcs.js: /* setup ajax for everything else */",
+      "http://169.254.214.194/fmcs.js: $.ajaxSetup({",
+      "http://169.254.214.194/fmcs.js: $(\"body\").append('<div id=\"loading\"> <p><img src=\"graphics/ajax-loader.gif\" /> Please Wait</p></div>');",
+      "http://169.254.214.194/fmcs.js: $.ajax({",
+      "http://169.254.214.194/index.js: CommonAjaxSetup();",
+      "http://169.254.214.194/gpmconfig.js: CommonAjaxSetup();",
+      "http://169.254.214.194/gpmconfig.js: $.ajax({url: \"/API/PTCmd\",",
+      "http://169.254.214.194/gpm.js: $.ajax({data: strCmd,",
+      "http://169.254.214.194/gpm.js: $.ajax({data:cmd,",
+      "http://169.254.214.194/gpm.js: $.ajax({   data: \"GC\",",
+      "http://169.254.214.194/gpm.js: $.ajax({",
+      "http://169.254.214.194/gpm.js: $.ajax({data: cmd,",
+      "http://169.254.214.194/ioconfig.js: CommonAjaxSetup();",
+      "http://169.254.214.194/ioconfig.js: $.ajax({url: \"/API/PTCmd\",",
+      "http://169.254.214.194/ismconfig.js: CommonAjaxSetup();",
+      "http://169.254.214.194/ismconfig.js: $.ajax({url:\"/API/PTCmd\",",
+      "http://169.254.214.194/ismconfig.js: $.ajax({url: \"/API/PTCmd\",",
+      "http://169.254.214.194/control.js: CommonAjaxSetup();",
+      "http://169.254.214.194/control.js: $.ajax({data: 'SS',",
+      "http://169.254.214.194/control.js: $.ajax({data: cmd,",
+      "http://169.254.214.194/control.js: $.ajax( {",
+      "http://169.254.214.194/control.js: $.ajax({",
+      "http://169.254.214.194/control.js: var xmlRes = $.ajax( {",
+      "http://169.254.214.194/ptuconfig.js: CommonAjaxSetup();"
+    ],
+    "xmlhttp": [
+      "http://169.254.214.194/jquery.js: global:true,type:\"GET\",contentType:\"application/x-www-form-urlencoded\",processData:true,async:true,xhr:A.XMLHttpRequest&&(A.location.protocol!==\"file:\"||!A.ActiveXObject)?function(){return new A.XMLHttpRequest}:function(){try{return new A.A",
+      "http://169.254.214.194/jquery.js: c.lastModified[e.url]);c.etag[e.url]&&x.setRequestHeader(\"If-None-Match\",c.etag[e.url])}r||x.setRequestHeader(\"X-Requested-With\",\"XMLHttpRequest\");x.setRequestHeader(\"Accept\",e.dataType&&e.accepts[e.dataType]?e.accepts[e.dataType]+\", */*\":e",
+      "http://169.254.214.194/csi.js: if (window.XMLHttpRequest) {",
+      "http://169.254.214.194/csi.js: req = new XMLHttpRequest();",
+      "http://169.254.214.194/csi.js: req = new ActiveXObject(\"Msxml2.XMLHTTP\");",
+      "http://169.254.214.194/csi.js: req = new ActiveXObject(\"Microsoft.XMLHTTP\");",
+      "http://169.254.214.194/csi.js: \"XMLHTTPRequest objects. This page requires \" +"
+    ],
+    "fetch": [
+      "http://169.254.214.194/gpmconfig.js: FetchLandmarks();",
+      "http://169.254.214.194/gpm.js: success: FetchLandmarks",
+      "http://169.254.214.194/gpm.js: FetchLandmarks();",
+      "http://169.254.214.194/gpm.js: function FetchLandmarks()",
+      "http://169.254.214.194/gpm.js: success: FetchLandmarks});",
+      "http://169.254.214.194/gpm.js: FetchLandmarks();"
+    ]
+  },
+  "likely_control_endpoints": [
+    {
+      "source": "link",
+      "url": "http://169.254.214.194/ptuconfig.html",
+      "reason": "link contains PTU control-related keyword"
+    },
+    {
+      "source": "link",
+      "url": "http://169.254.214.194/control.html",
+      "reason": "link contains PTU control-related keyword"
+    },
+    {
+      "source": "form",
+      "url": "http://169.254.214.194/",
+      "method": "GET",
+      "reason": "form action or field names suggest PTU control"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/footer.html",
+      "reason": "keyword 'pan' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/gpmconfig.html",
+      "reason": "keyword 'pan' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/index.html",
+      "reason": "keyword 'pan' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/ioconfig.html",
+      "reason": "keyword 'pan' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/ismconfig.html",
+      "reason": "keyword 'pan' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/control.html",
+      "reason": "keyword 'pan' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/header.html",
+      "reason": "keyword 'ptu' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/ptucontrol/spacer.gif",
+      "reason": "keyword 'ptu' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/ptuconfig.html",
+      "reason": "keyword 'ptu' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/fmcs.js",
+      "reason": "keyword 'ptu' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/gpm.js",
+      "reason": "keyword 'tilt' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/control.js",
+      "reason": "keyword 'tilt' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/jquery.js",
+      "reason": "keyword 'move' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/jquery.timers-1.2.js",
+      "reason": "keyword 'move' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/API/PTCmd",
+      "reason": "keyword 'ajax' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/index.js",
+      "reason": "keyword 'ajax' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/gpmconfig.js",
+      "reason": "keyword 'ajax' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/ioconfig.js",
+      "reason": "keyword 'ajax' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/ismconfig.js",
+      "reason": "keyword 'ajax' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/ptuconfig.js",
+      "reason": "keyword 'ajax' found near URL-like string"
+    },
+    {
+      "source": "keyword_hit",
+      "url": "http://169.254.214.194/csi.js",
+      "reason": "keyword 'xmlhttp' found near URL-like string"
+    }
+  ],
+  "script_inferred_control_endpoints": [
+    {
+      "kind": "status",
+      "url": "http://169.254.214.194/API/PTCmd",
+      "method": "POST",
+      "command": "PP&TP&PD&TD&C",
+      "reason": "control.js uses /API/PTCmd for live PTU status updates."
+    },
+    {
+      "kind": "device_info",
+      "url": "http://169.254.214.194/API/PTCmd",
+      "method": "POST",
+      "command": "V&NN&NM&NI&NS&NA&NG",
+      "reason": "index.js uses /API/PTCmd for PTU network and firmware values."
+    },
+    {
+      "kind": "pan",
+      "url": "http://169.254.214.194/API/PTCmd",
+      "method": "POST",
+      "command_template": "C=I&PS={pan_speed}&TS={tilt_speed}&PO={step}",
+      "reason": "control.js sends PO through /API/PTCmd for pan position offsets."
+    },
+    {
+      "kind": "tilt",
+      "url": "http://169.254.214.194/API/PTCmd",
+      "method": "POST",
+      "command_template": "C=I&PS={pan_speed}&TS={tilt_speed}&TO={step}",
+      "reason": "control.js sends TO through /API/PTCmd for tilt position offsets."
+    },
+    {
+      "kind": "halt",
+      "url": "http://169.254.214.194/API/PTCmd",
+      "method": "POST",
+      "command": "H",
+      "reason": "control.js binds the Halt button to PTCmd('H')."
+    },
+    {
+      "kind": "network_apply",
+      "url": "http://169.254.214.194/API/PTCmd",
+      "method": "POST",
+      "form_fields": [
+        "NN",
+        "NA",
+        "NM",
+        "NI",
+        "NS",
+        "NG"
+      ],
+      "reason": "index.js posts the serialized network form to /API/PTCmd when SendNetwork is clicked."
+    },
+    {
+      "kind": "network_save",
+      "url": "http://169.254.214.194/API/PTCmd",
+      "method": "POST",
+      "command": "ds",
+      "reason": "index.js posts 'ds' to /API/PTCmd when SaveNetwork is clicked."
+    },
+    {
+      "kind": "network_reset",
+      "url": "http://169.254.214.194/API/PTCmd",
+      "method": "POST",
+      "command": "df&r",
+      "reason": "index.js posts 'df&r' to /API/PTCmd when ResetNetwork is clicked."
+    }
+  ],
+  "validated_control_endpoints": [
+    {
+      "kind": "halt",
+      "url": "http://169.254.214.194/API/PTCmd",
+      "method": "POST",
+      "command": "H",
+      "reason": "control.js binds the Halt button to PTCmd('H').",
+      "validated_at": "2026-04-20T17:55:10.144468+00:00"
+    },
+    {
+      "kind": "pan",
+      "url": "http://169.254.214.194/API/PTCmd",
+      "method": "POST",
+      "command_template": "C=I&PS={pan_speed}&TS={tilt_speed}&PO={step}",
+      "reason": "control.js sends PO through /API/PTCmd for pan position offsets.",
+      "validated_at": "2026-04-20T17:55:14.579322+00:00"
+    },
+    {
+      "kind": "tilt",
+      "url": "http://169.254.214.194/API/PTCmd",
+      "method": "POST",
+      "command_template": "C=I&PS={pan_speed}&TS={tilt_speed}&TO={step}",
+      "reason": "control.js sends TO through /API/PTCmd for tilt position offsets.",
+      "validated_at": "2026-04-20T18:00:02.738775+00:00"
+    }
+  ],
+  "artifacts_dir": "/home/ruirenmei/Downloads/camera_agent-main/flir_ptu_agent/artifacts",
+  "notes": [
+    "Discovery only records likely web control patterns.",
+    "Script-inferred PTU control endpoints come from concrete page scripts.",
+    "Validated endpoints are promoted only after a real execute path succeeds."
+  ]
+}

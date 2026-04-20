@@ -1,0 +1,22 @@
+{
+  "axis": "tilt",
+  "command": "C=I&PS=5&TS=5&TO=5",
+  "response_status_code": 200,
+  "response_text": "{ \"C\" : \"*\", \"PS\" : \"*\", \"TS\" : \"*\", \"TO\" : \"*\", \"status\" : \"*\" }",
+  "before_status": {
+    "PP": "224",
+    "TP": "-4491",
+    "PD": "0",
+    "TD": "0",
+    "C": "I",
+    "status": "*"
+  },
+  "after_status": {
+    "PP": "224",
+    "TP": "-4490",
+    "PD": "0",
+    "TD": "5",
+    "C": "I",
+    "status": "*"
+  }
+}

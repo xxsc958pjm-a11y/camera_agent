@@ -1,0 +1,405 @@
+
+var fBiasInc = .01;	      
+var PI = 3.14159;
+var biasWaiting = false;
+var restartCnt = 3;
+
+$(document).ready(function() {
+    clientSideInclude('topmenu', 'header.html');
+    clientSideInclude('footer', 'footer.html');
+    CommonAjaxSetup();
+
+    $("#SendControl").click(SendEnabledControl);
+    
+    $("#SendResetFactory").click(function() 
+				 {
+				     showLoading();
+				     PTCmd("SDF",
+					   '', //success,
+					   function() { alert('ISM Reset Failed');},
+					   function() {
+					       UpdateData();
+					       hideLoading();
+					   });
+				 });
+
+    $("#SendSaveDefault").click(function() 
+				{
+				    showLoading();
+				    PTCmd("SDS",
+					  '', //success
+					  function() { alert('ISM Save Failed');}, //error
+					  hideLoading); //complete
+				});
+
+    $("#SendRestoreDefault").click(function() 
+				   {
+				       showLoading();
+				       PTCmd("SDR",
+					     '', //success
+					     function() { //error
+						 alert('ISM Restore Failed');},
+					     function() {
+						 UpdateData();
+						 hideLoading();
+					     }
+					     ); //complete
+				   });
+
+    $("#SendCalibrateGyro").click(function() 
+				  {
+				      showLoading();
+				      $.ajax({url:"/API/PTCmd", 
+					      type: "POST",
+					      data: "SGC",
+					      complete: CheckCalibrationDoneWrapper
+					     });
+				  });
+
+    $("#RefreshData").click(function() 
+			    {
+				UpdateData();
+			    });
+    
+    $("#SUTC").change(function()
+		      {
+			  var iUTC = parseInt($("#SUTC").val());
+			  SetBias("SUTC", iUTC, $("#SUTC"));
+		      });
+
+
+    $("#upxbias").click(function()
+			{
+			    var fBias = parseFloat($("#SBX").val());
+			    fBias = fBias + fBiasInc;
+			    SetBias("SBX", fBias, $("#SBX"));
+			});		  
+    $("#downxbias").click(function()
+			  {
+			      var fBias = parseFloat($("#SBX").val());
+			      fBias = fBias - fBiasInc;
+			      SetBias("SBX", fBias, $("#SBX"));
+			  });		  
+    
+    $("#SBX").change(function()
+		     {
+			 var fBias = parseFloat($("#SBX").val());
+			 SetBias("SBX", fBias, $("#SBX"));
+		     });		  
+
+    $("#upybias").click(function()
+			{
+			    var fBias = parseFloat($("#SBY").val());
+			    fBias = fBias + fBiasInc;
+			    SetBias("SBY", fBias, $("#SBY"));
+			});		  
+    $("#downybias").click(function()
+			  {
+			      var fBias = parseFloat($("#SBY").val());
+			      fBias = fBias - fBiasInc;
+			      SetBias("SBY", fBias, $("#SBY"));
+			  });		  
+    
+    $("#SBY").change(function()
+		     {
+			 var fBias = parseFloat($("#SBY").val());
+			 SetBias("SBY", fBias, $("#SBY"));
+		     });		  
+
+    $("#upzbias").click(function()
+			{
+			    var fBias = parseFloat($("#SBZ").val());
+			    fBias = fBias + fBiasInc;
+			    SetBias("SBZ", fBias, $("#SBZ"));
+			});		  
+    $("#downzbias").click(function()
+			  {
+			      var fBias = parseFloat($("#SBZ").val());
+			      fBias = fBias - fBiasInc;
+			      SetBias("SBZ", fBias, $("#SBZ"));
+			  });		  
+    
+    $("#SBZ").change(function()
+		     {
+			 var fBias = parseFloat($("#SBZ").val());
+			 SetBias("SBZ", fBias, $("#SBZ"));
+		     });		  
+
+
+    UpdateData();
+    
+    
+});
+
+function SetBias(strCmd, fVal, pObject)
+{
+    var fRadBias = fVal ;
+    var   strCmd = strCmd + "=" + fRadBias;
+    if(biasWaiting == false)
+    {
+	biasWaiting = true;
+	$.ajax({url: "/API/PTCmd", 
+		type: "POST",
+		data: strCmd, 
+		success: function (data)
+		{
+		    pObject.val(fVal);
+		    biasWaiting = false;
+		}
+	       });
+    }
+}
+
+function SendEnabledControl()
+{
+    //$("#ControlForm tr input").css("border", "2px dotted blue");
+
+    strCmd = '';
+    $(".controldata").each( 
+	function(index)
+	{
+	    strCmd  = strCmd + $(this).attr('name') + '=' + $(this).val() + '&';
+
+	});
+    //alert(strCmd);
+    $.post("/API/PTCmd", 
+	   strCmd,
+	   GenericJson,
+	   "json");
+}
+
+
+function UpdateData()
+{
+
+    $.post("/API/PTCmd", 
+	   "V&VM&SS",
+	   UpdateDataFromJson,
+	   "json");
+
+    $.post("/API/PTCmd",
+	   "SCPKP&SCTKP",
+	   function(data) {
+	       $.each(data, function(key,val)
+		      {
+			  switch(key)
+			  {
+			  case 'status':
+			      if(val == '*')
+				  $("#kprow").show();
+			      break;
+			  case 'SCPKP':
+			      $("#SCPKP").val(val);
+			      break;
+			  case 'SCTKP':
+			      $("#SCTKP").val(val);
+			      break;
+			  }
+		      });
+	   },
+	   "json");
+
+    $.post("/API/PTCmd",
+	   "SCPKA&SCTKA",
+	   function(data) {
+	       $.each(data, function(key,val)
+		      {
+			  switch(key)
+			  {
+			  case 'status':
+			      if(val == '*')
+				  $("#karow").show();
+			      break;
+			  case 'SCPKA':
+			      $("#SCPKA").val(val);
+			      break;
+			  case 'SCTKA':
+			      $("#SCTKA").val(val);
+			      break;
+			  }
+		      });
+	   },
+	   "json");
+
+    $.post("/API/PTCmd",
+	   "SCPVD&SCTVD",
+	   function(data) {
+	       $.each(data, function(key,val)
+		      {
+			  switch(key)
+			  {
+			  case 'status':
+			      if(val == '*')
+				  $("#vdrow").show();
+			      break;
+			  case 'SCPVD':
+			      $("#SCPVD").val(val);
+			      break;
+			  case 'SCTVD':
+			      $("#SCTVD").val(val);
+			      break;
+			  }
+		      });
+	   },
+	   "json");
+
+    $.post("/API/PTCmd",
+	   "SCPPD&SCTPD",
+	   function(data) {
+	       $.each(data, function(key,val)
+		      {
+			  switch(key)
+			  {
+			  case 'status':
+			      if(val == '*')
+				  $("#pdrow").show();
+			      break;
+			  case 'SCPPD':
+			      $("#SCPPD").val(val);
+			      break;
+			  case 'SCTPD':
+			      $("#SCTPD").val(val);
+			      break;
+			  }
+		      });
+	   },
+	   "json");
+
+    $.post("/API/PTCmd",
+	   "SCPKS&SCTKS",
+	   function(data) {
+	       $.each(data, function(key,val)
+		      {
+			  switch(key)
+			  {
+			  case 'status':
+			      if(val == '*')
+				  $("#ksrow").show();
+			      break;
+			  case 'SCPKS':
+			      $("#SCPKS").val(val);
+			      break;
+			  case 'SCTKS':
+			      $("#SCTKS").val(val);
+			      break;
+			  }
+		      });
+	   },
+	   "json");
+
+    $.post("/API/PTCmd",
+	   "SUTC",
+	   function(data) {
+	       $.each(data, function(key,val) {
+		   
+		   var iVal = parseInt(val) ;
+		   switch(key)
+		   {
+		   case 'SUTC':
+		       $("#SUTC").val(iVal);
+		       break;
+		       
+		   }
+	       });
+	   },
+	   "json");
+
+    $.post("/API/PTCmd",
+	   "SBX&SBY&SBZ",
+	   function(data) {
+	       $.each(data, function(key,val) {
+
+		   var fVal = parseFloat(val) ;
+		   switch(key)
+		   {
+		   case 'SBX':
+		       $("#SBX").val(fVal);
+		       break;
+		   case 'SBY':
+		       $("#SBY").val(fVal);
+		       break;
+		   case 'SBZ':
+		       $("#SBZ").val(fVal);
+		       break;
+		       
+		   }
+	       });
+	   },
+	   "json");
+    
+}
+
+
+function UpdateDataFromJson(data)
+{
+    $.each(data, function(key, val) {
+	
+	switch(key)
+	{
+	case 'V':
+	    $("#firmware").html(val);
+	    break;
+	case 'VM':
+	    $("#model").html(val);
+	    break;
+	case 'SS':
+	    $("#status").html(SSToString(val));
+	    break;
+	}
+    });
+}
+
+//This function is here so it waits for the calib task to start before querying status
+function CheckCalibrationDoneWrapper()
+{
+    restartCnt = 5;
+    setTimeout(CheckCalibrationDone, 500);
+}
+
+function CheckCalibrationDone()
+{
+    var status;
+    $("#status").html("Calibrating");
+    PTCmd("SS",
+	  function (data)
+	  {
+	      $.each(data, function (key,val)
+		     {
+			 switch(key)
+			 {
+			 case 'SS':
+			     status = SSToString(val);
+			     $("#status").html(status);
+			     if(status == "Calibration<BR>Failed")
+			     {
+				 alert("Calibration Failed");
+				 hideLoading();
+			     }
+			     else if(status == "Ready")
+			     {
+				 alert("Calibration Successful");
+				 UpdateData();
+				 hideLoading();
+			     }
+			     else if(status == "Calibrating")
+			     {
+				 setTimeout(CheckCalibrationDone, 5000);
+			     } else {
+				 if(restartCnt == 0){
+				     alert(status);
+				     UpdateData();
+				     hideLoading();
+				 } else {
+				     restartCnt--;
+				     setTimeout(CheckCalibrationDone, 5000);
+				 }
+			     }
+			     
+			 }
+		     });
+	  },  function(){
+	      restartCnt--;
+	      setTimeout(CheckCalibrationDone, 5000);
+	  }, '');
+}
+

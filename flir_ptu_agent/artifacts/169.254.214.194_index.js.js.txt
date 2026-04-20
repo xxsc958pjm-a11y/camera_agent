@@ -1,0 +1,186 @@
+$(document).ready(function() {
+    
+    clientSideInclude('topmenu', 'header.html');
+    clientSideInclude('footer', 'footer.html');
+
+    CommonAjaxSetup();
+    $(".ipradio").click( function()
+			 {
+			     
+			     if($(this).val() == 'D')
+			     {
+				 EnableNetwork(true);
+				 
+			     }
+			     else
+			     {
+				 EnableNetwork(false);
+			     }
+			 });
+
+    $("#SendNetwork").click( function()
+			     {
+				 if(confirmApply())
+				 {
+				     if(ValidateMAC($("#macaddress").val()))
+				     {
+					 
+					 return;
+				     }
+				     $("#macaddress").val($("#macaddress").val().replace(/:/g, '-'));
+				     //alert("send: " + $("#minput").serialize());
+				     
+				     $.post("/API/PTCmd",
+					    $("#minput").serialize(),
+					    null,
+					    "json");
+				     
+
+				     naddr = 'http://' + $("#IPAddress").val() + '/index.html';
+				     alert('Redirecting to ' + naddr);
+				     window.location = naddr;
+				 }
+				 
+			     });
+
+    $("#ResetNetwork").click( function()
+			      {
+				  if(confirmReset())
+				  {
+				      showLoading();
+				      $.post("/API/PTCmd", 
+					     "df&r",
+					     null,
+					     "json");
+				      CBWhenResponding('UpdateNetwork(); hideLoading();');
+				  }
+			      });
+
+    $("#SaveNetwork").click( function()
+			     {
+				 if(confirmSave())
+				 {
+				     showLoading();
+				     $.post("/API/PTCmd", 
+					    "ds",
+					    null,
+					    "json");
+				     PTCmd("ds", 
+					   '', //success
+					   '', //error
+					   function () { //complete
+					       UpdateNetwork();
+					       hideLoading();
+					   });
+				 }
+			     });
+
+
+    
+    UpdateNetwork();
+});
+
+
+function confirmApply()
+{
+    if (confirm('Changing network settings will attempt to redirect you to the new site, but it may just not work. Should this happen consult the manual for troubleshooting information. Do you wish to continue?'))
+    {
+	return true;
+    }
+    return false;
+}
+
+function confirmReset()
+{
+    if (confirm('Resetting network settings will attempt to redirect you to the new site, but it may just not work. Should this happen consult the manual for troubleshooting information. In addition, this will reset all settings on the device to factory defaults, and command a physical reset of the device.  Do you wish to continue?'))
+    {
+	return true;
+    }
+    return false;
+}
+
+function confirmSave()
+{
+    if (confirm('Save last set network settings?'))    {
+	return true;
+    }
+    return false;
+}
+
+function UpdateNetwork()
+{
+    $.post("/API/PTCmd",
+	   "V&NN&NM&NI&NS&NA&NG",
+	   UpdateNetworkFromJson,
+	   "json");
+}
+
+function UpdateNetworkFromJson(data)
+{
+    $.each(data, function(key,val) {
+	switch(key)
+	{
+	case 'NN':
+	    $("#hostName").val(val);
+	    break;
+	case 'NM':
+	    {
+		if(val=='D')
+		{
+		    $("#autoip").attr('checked', true);
+		    EnableNetwork(true);
+		}
+		else
+		{
+		    $("#manualip").attr('checked', true);
+		    EnableNetwork(false);
+		}
+		
+	    }
+	case 'NI':
+	    $("#IPAddress").val(val);
+	    break;
+	case 'NS':
+	    $("#subnetMask").val(val);
+	    break;
+	case 'NG':
+	    $("#gateway").val(val);
+	    break;
+	case 'V':
+	    $("#firmware").html(val);
+	    break;
+	case 'NA':
+	    $("#macaddress").val(val);
+	    break;
+	default:
+	    break;
+
+	}
+
+
+    });
+
+}
+
+
+function EnableNetwork(enable)
+{
+    $("#IPAddress").attr('disabled', enable);
+    $("#subnetMask").attr('disabled', enable);
+    $("#gateway").attr('disabled', enable);
+}
+
+function ValidateMAC(val)
+{
+    re = /([0-9a-fA-F]{2}[-:]){5}([0-9a-fA-F]{2})/;
+
+    res = re.exec(val);
+    if(null===res)
+    {
+	alert("Invalid MAC Address\n");
+	return 1;
+    }
+    return 0;
+    
+
+}

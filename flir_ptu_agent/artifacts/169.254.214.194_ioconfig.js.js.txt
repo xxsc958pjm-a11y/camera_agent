@@ -1,0 +1,215 @@
+
+
+$(document).ready(function() {
+
+    clientSideInclude('topmenu', 'header.html');
+    clientSideInclude('footer', 'footer.html');
+    CommonAjaxSetup();
+    
+
+   
+    $("#PT9").click( function() {
+	setPT(9,$("#PT9").val());    
+    });
+
+    $("#PT10").click( function() {
+	setPT(10,$("#PT10").val());    
+    });
+
+    $("#PT11").click( function() {
+	setPT(11,$("#PT11").val());    
+    });
+
+    $("#PT12").click( function() {
+	setPT(12,$("#PT12").val());    
+    });
+
+    $("#PT13").click( function() {
+	setPT(13,$("#PT13").val());    
+    });
+
+    $("#PT14").click( function() {
+	setPT(14,$("#PT14").val());    
+    });
+
+    $("#PT15").click( function() {
+	setPT(15,$("#PT15").val());    
+    });
+
+    $("#PT16").click( function() {
+	setPT(16,$("#PT16").val());    
+    });
+
+
+    $("#IOApply").click(function()
+			 {
+			     PTCmd("IOA", UpdateData);					  
+			 });
+
+    $("#HostEnable").click(function()
+			   {
+			       PTCmd("IOHOST", NOP, NOP, UpdateData);
+			   });
+
+    $("#ChAenable").click(function()
+			   {
+			       PTCmd("IOCHA", NOP, NOP, UpdateData);
+			   });
+
+    $("#ChBenable").click(function()
+			   {
+			       PTCmd("IOCHB", NOP, NOP, UpdateData);
+			   });
+
+    
+    $("#SendIOResetFactory").click(function() 
+				 {
+				     $.ajax({url: "/API/PTCmd", 
+					     type: "POST",
+					     data: "IODF", 
+					     success: function (data)
+					     {
+						 GenericJson(data);
+					     },
+					     complete: UpdateData
+					    });
+				 });
+
+    $("#SendIOSaveDefault").click(function() 
+				{
+				    $.post("/API/PTCmd", 
+					   "IODS",
+					   GenericJson,
+					   "json");
+				    
+				});
+
+
+    $("#SendIORestoreDefault").click(function() 
+				   {
+				       $.post("/API/PTCmd", 
+					      "IODR",
+					      UpdateData,
+					      "json");
+				       
+				       
+				   });
+
+    
+    UpdateData();
+    
+});
+
+
+
+function setPT(pt_num, sig_type)
+{
+    sig_val = 0;
+    switch(sig_type){
+    case 'passthrough':
+	sig_val = 0;
+	break;
+    case 'serial':
+	sig_val = 1;
+	break;
+    case 'OP2':
+	sig_val = 2;
+	break;
+    case 'OP3':
+	sig_val = 3;
+	break;
+    case 'OP4':
+	sig_val = 4;
+	break;
+    case 'TTLrx':
+	sig_val = 5;
+	break;
+    case 'TTLtx':
+	sig_val = 6;
+	break;
+    }
+    str = "IO=" + pt_num + ":" + sig_val;
+    PTCmd(str,NOP,NOP,UpdateData)
+}
+
+function UpdateData(){
+    $.post("/API/PTCmd",
+	   "IO",
+	   UpdateDataFromJson,
+	   "json");
+}
+function UpdateDataFromJson(data)
+{
+    $.each(data, function(key, val) {
+	
+     	switch(key)
+	{
+	case 'IO':
+	    ParseAndSetPassthroughs(val)
+	    break;
+	}
+	
+    });
+}
+
+
+function ParseAndSetPassthroughs(str) {
+
+    splits = str.split(",");
+
+    for(i=0; i<splits.length && i<8; i++){
+	val = 'passthorugh';
+	switch(splits[i]){
+	case '0':
+	    val = 'passthrough';
+	    break;
+	case '1':
+	    val = 'serial';
+	    break;
+	case '2':
+	    val = 'OP2';
+	    break;
+	case '3':
+	    val = 'OP3';
+	    break;
+	case '4':
+	    val = 'OP4';
+	    break;
+	case '5':
+	    val = 'TTLrx';
+	    break;
+	case '6':
+	    val = 'TTLtx';
+	    break;
+	}
+
+	switch(i){
+	case 0:
+	    $("#PT9").val(val);
+	    break;
+	case 1:
+	    $("#PT10").val(val);
+	    break;
+	case 2:
+	    $("#PT11").val(val);
+	    break;
+	case 3:
+	    $("#PT12").val(val);
+	    break;
+	case 4:
+	    $("#PT13").val(val);
+	    break;
+	case 5:
+	    $("#PT14").val(val);
+	    break;
+	case 6:
+	    $("#PT15").val(val);
+	    break;
+	case 7:
+	    $("#PT16").val(val);
+	    break;
+
+	}
+    }
+}
+
