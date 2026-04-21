@@ -23,8 +23,22 @@ def open_camera(
 def read_bgr_frame(cap):
     ret, frame = cap.read()
     if not ret or frame is None:
-        return ret, None
-    return ret, cv2.cvtColor(frame, cv2.COLOR_YUV2BGR_YUY2)
+        return ret, frame
+
+    # Support GREY, normal BGR, and packed YUY2/YUYV inputs.
+    if frame.ndim == 2:
+        return ret, cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+
+    if frame.ndim == 3:
+        channel_count = frame.shape[2]
+        if channel_count == 1:
+            return ret, cv2.cvtColor(frame[:, :, 0], cv2.COLOR_GRAY2BGR)
+        if channel_count == 3:
+            return ret, frame
+        if channel_count == 2:
+            return ret, cv2.cvtColor(frame, cv2.COLOR_YUV2BGR_YUY2)
+
+    return ret, frame
 
 
 def get_camera_debug_info(cap, requested_camera_index):

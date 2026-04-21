@@ -1,0 +1,47 @@
+ptu:
+  enabled: true
+  execute: true
+  host: 169.254.214.194
+  negative_tilt_cooldown_sec: 0.5
+  safe_pan_step: 10
+  safe_tilt_step: 10
+  safe_tilt_step_pos: 10
+  safe_tilt_step_neg: 5
+  max_pan_step: 10
+  max_tilt_step: 10
+  max_tilt_step_pos: 10
+  max_tilt_step_neg: 5
+  project_root: /home/ruirenmei/Downloads/flir_ptu_agent
+  external_config_path: /home/ruirenmei/Downloads/flir_ptu_agent/config/ptu.yaml
+
+tracking:
+  target_marker_id: 37
+  stable_detect_frames: 3
+  lost_target_frames: 7
+  hold_last_target_frames: 5
+  center_smoothing: ema
+  center_ema_alpha: 0.4
+  center_jump_reset_px: 80
+  dedup_same_command_window_sec: 0.4
+  deadband_px_x: 35
+  deadband_px_y: 30
+  medium_error_px: 100
+  large_error_px: 180
+  step_small: 5
+  step_medium: 10
+  step_large: 10
+  command_interval_sec: 0.30
+  lost_target_halt: true
+  min_stable_frames: 3
+  max_center_jump_px: 55
+
+direction:
+  image_right_to_pan_sign: 1
+  image_up_to_tilt_sign: -1
+
+camera:
+  index: 4
+  width: 1280
+  height: 720
+  aruco_dictionary: DICT_4X4_50
+  marker_length_mm: 50.0

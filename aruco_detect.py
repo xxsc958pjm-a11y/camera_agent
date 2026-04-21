@@ -131,8 +131,31 @@ def get_aruco_dictionary(dict_name):
 
 def create_detector_parameters():
     if hasattr(cv2.aruco, "DetectorParameters"):
-        return cv2.aruco.DetectorParameters()
-    return cv2.aruco.DetectorParameters_create()
+        parameters = cv2.aruco.DetectorParameters()
+    else:
+        parameters = cv2.aruco.DetectorParameters_create()
+
+    _set_detector_parameter(
+        parameters,
+        "cornerRefinementMethod",
+        getattr(cv2.aruco, "CORNER_REFINE_SUBPIX", None),
+    )
+    _set_detector_parameter(parameters, "cornerRefinementWinSize", 5)
+    _set_detector_parameter(parameters, "cornerRefinementMaxIterations", 30)
+    _set_detector_parameter(parameters, "cornerRefinementMinAccuracy", 0.01)
+    _set_detector_parameter(parameters, "adaptiveThreshWinSizeMin", 5)
+    _set_detector_parameter(parameters, "adaptiveThreshWinSizeMax", 23)
+    _set_detector_parameter(parameters, "adaptiveThreshWinSizeStep", 4)
+    _set_detector_parameter(parameters, "minMarkerPerimeterRate", 0.02)
+    _set_detector_parameter(parameters, "polygonalApproxAccuracyRate", 0.04)
+    return parameters
+
+
+def _set_detector_parameter(parameters, name, value):
+    if value is None:
+        return
+    if hasattr(parameters, name):
+        setattr(parameters, name, value)
 
 
 def detect_markers(image, dictionary):
